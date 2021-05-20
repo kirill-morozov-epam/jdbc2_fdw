@@ -433,7 +433,7 @@ JQiterate(Jconn *conn, ForeignScanState *node){
     		values[i] = ConvertStringToCString((jobject)(*Jenv)->GetObjectArrayElement(Jenv, rowArray, i));
     	}
     	tuple = BuildTupleFromCStrings(TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att), values);
-    	ExecStoreTuple(tuple, slot, InvalidBuffer, false);
+    	ExecStoreHeapTuple(tuple, slot, InvalidBuffer, false);
     	++(conn->festate->NumberOfRows);
     	// Take out the garbage
     	for(i=0; i < numberOfColumns; i++){
