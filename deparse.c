@@ -1136,6 +1136,7 @@ static void
 deparseRelation(StringInfo buf, Relation rel)
 {
 	ForeignTable *table;
+    const char *ctlgname = NULL;
 	const char *nspname = NULL;
 	const char *relname = NULL;
 	ListCell   *lc;
@@ -1154,6 +1155,8 @@ deparseRelation(StringInfo buf, Relation rel)
 			nspname = defGetString(def);
 		else if (strcmp(def->defname, "table_name") == 0)
 			relname = defGetString(def);
+        else if (strcmp(def->defname, "catalog_name") == 0)
+            ctlgname = defGetString(def);
 	}
 
 	/*
@@ -1170,7 +1173,7 @@ deparseRelation(StringInfo buf, Relation rel)
 	if(strlen(nspname) == 0){ // schema_name '', will omit the schema from the object name
 		appendStringInfo(buf, "%s", quote_identifier(relname));
 	} else {
-		appendStringInfo(buf, "%s.%s", quote_identifier(nspname), quote_identifier(relname));
+		appendStringInfo(buf, "%s.%s.%s", quote_identifier(ctlgname), quote_identifier(nspname), quote_identifier(relname));
 	}
 }
 

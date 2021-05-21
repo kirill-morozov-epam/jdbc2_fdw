@@ -158,6 +158,7 @@ InitJdbcFdwOptions(void)
         /* updatable is available on both server and table */
         {"updatable", ForeignServerRelationId, false},
         {"updatable", ForeignTableRelationId, false},
+        {"catalog_name", ForeignTableRelationId, false},
 		{"schema_name", ForeignTableRelationId, false},
 		{"table_name", ForeignTableRelationId, false},
 		{"column_name", AttributeRelationId, false},
