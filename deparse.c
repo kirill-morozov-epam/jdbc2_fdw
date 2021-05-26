@@ -116,6 +116,7 @@ static void deparseReturningList(StringInfo buf, PlannerInfo *root,
 static void deparseColumnRef(StringInfo buf, int varno, int varattno,
 				 PlannerInfo *root);
 static void deparseRelation(StringInfo buf, Relation rel);
+static void deparseQuery(StringInfo buf, Relation rel);
 static void deparseStringLiteral(StringInfo buf, const char *val);
 static void deparseExpr(Expr *expr, deparse_expr_cxt *context);
 static void deparseVar(Var *node, deparse_expr_cxt *context);
@@ -676,38 +677,59 @@ is_builtin(Oid oid)
  * We also create an integer List of the columns being retrieved, which is
  * returned to *retrieved_attrs.
  */
+//void
+//deparseSelectSql(StringInfo buf,
+//				 PlannerInfo *root,
+//				 RelOptInfo *baserel,
+//				 Bitmapset *attrs_used,
+//				 List **retrieved_attrs)
+//{
+//	RangeTblEntry *rte = planner_rt_fetch(baserel->relid, root);
+//	Relation	rel;
+//
+//	/*
+//	 * Core code already has some lock on each rel being planned, so we can
+//	 * use NoLock here.
+//	 */
+//	rel = heap_open(rte->relid, NoLock);
+//
+//	/*
+//	 * Construct SELECT list
+//	 */
+//	appendStringInfoString(buf, "SELECT ");
+//	deparseTargetList(buf, root, baserel->relid, rel, attrs_used,
+//					  retrieved_attrs);
+//
+//	/*
+//	 * Construct FROM clause
+//	 */
+//	appendStringInfoString(buf, " FROM ");
+//	deparseRelation(buf, rel);
+//
+//	heap_close(rel, NoLock);
+//}
+
+
 void
 deparseSelectSql(StringInfo buf,
-				 PlannerInfo *root,
-				 RelOptInfo *baserel,
-				 Bitmapset *attrs_used,
-				 List **retrieved_attrs)
+                 PlannerInfo *root,
+                 RelOptInfo *baserel,
+                 Bitmapset *attrs_used,
+                 List **retrieved_attrs)
 {
-	RangeTblEntry *rte = planner_rt_fetch(baserel->relid, root);
-	Relation	rel;
+    RangeTblEntry *rte = planner_rt_fetch(baserel->relid, root);
+    Relation	rel;
 
-	/*
-	 * Core code already has some lock on each rel being planned, so we can
-	 * use NoLock here.
-	 */
-	rel = heap_open(rte->relid, NoLock);
+    /*
+     * Core code already has some lock on each rel being planned, so we can
+     * use NoLock here.
+     */
+    rel = heap_open(rte->relid, NoLock);
 
-	/*
-	 * Construct SELECT list
-	 */
-	appendStringInfoString(buf, "SELECT ");
-	deparseTargetList(buf, root, baserel->relid, rel, attrs_used,
-					  retrieved_attrs);
+    deparseQuery(buf, rel);
 
-	/*
-	 * Construct FROM clause
-	 */
-	appendStringInfoString(buf, " FROM ");
-	deparseRelation(buf, rel);
-
-	heap_close(rel, NoLock);
+    heap_close(rel, NoLock);
 }
-
 /*
  * Emit a target list that retrieves the columns specified in attrs_used.
  * This is used for both SELECT and RETURNING targetlists.
@@ -1175,6 +1197,29 @@ deparseRelation(StringInfo buf, Relation rel)
 	} else {
 		appendStringInfo(buf, "%s.%s.%s", quote_identifier(ctlgname), quote_identifier(nspname), quote_identifier(relname));
 	}
+}
+
+static void
+deparseQuery(StringInfo buf, Relation rel)
+{
+    ForeignTable *table;
+    const char *query = NULL;
+    ListCell   *lc;
+
+    /* obtain additional catalog information. */
+    table = GetForeignTable(RelationGetRelid(rel));
+
+    /*
+     * Use value of FDW options if any, instead of the name of object itself.
+     */
+    foreach(lc, table->options)
+    {
+        DefElem    *def = (DefElem *) lfirst(lc);
+
+        if (strcmp(def->defname, "query") == 0)
+            query = defGetString(def);
+    }
+    appendStringInfo(buf, "%s", quote_identifier(query))
 }
 
 /*
