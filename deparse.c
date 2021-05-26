@@ -1219,7 +1219,7 @@ deparseQuery(StringInfo buf, Relation rel)
         if (strcmp(def->defname, "query") == 0)
             query = defGetString(def);
     }
-    appendStringInfo(buf, "%s", quote_identifier(query))
+    appendStringInfo(buf, "%s", query);
 }
 
 /*
