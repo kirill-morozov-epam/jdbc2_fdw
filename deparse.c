@@ -756,7 +756,7 @@ deparseSelectSql(StringInfo buf,
 	deparseRelation(buf, rel);
 
     if (query != NULL) {
-        initStringInfo(buf);
+        resetStringInfo(buf);
         deparseQuery(buf, rel);
     }
 
