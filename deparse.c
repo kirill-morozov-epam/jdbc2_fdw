@@ -756,7 +756,7 @@ deparseSelectSql(StringInfo buf,
         appendStringInfoString(buf, " FROM ");
         deparseRelation(buf, rel);
 
-    }else
+    }else{
         /*
   * Construct SELECT list
   */
