@@ -719,9 +719,11 @@ deparseSelectSql(StringInfo buf,
 {
     RangeTblEntry *rte = planner_rt_fetch(baserel->relid, root);
     Relation	rel;
+
     const char *query = NULL;
     ListCell   *lc;
     ForeignTable *table;
+    StringInfoData fakeSql;
 
     /*
      * Core code already has some lock on each rel being planned, so we can
@@ -740,23 +742,35 @@ deparseSelectSql(StringInfo buf,
         if (strcmp(def->defname, "query") == 0)
             query = defGetString(def);
     }
+    if (query == NULL) {
+        /*
+         * Construct SELECT list
+         */
+        appendStringInfoString(buf, "SELECT ");
+        deparseTargetList(buf, root, baserel->relid, rel, attrs_used,
+                          retrieved_attrs);
 
+        /*
+         * Construct FROM clause
+         */
+        appendStringInfoString(buf, " FROM ");
+        deparseRelation(buf, rel);
 
-	/*
-	 * Construct SELECT list
-	 */
-	appendStringInfoString(buf, "SELECT ");
-	deparseTargetList(buf, root, baserel->relid, rel, attrs_used,
-					  retrieved_attrs);
+    }else
+        /*
+  * Construct SELECT list
+  */
+        initStringInfo(&fakeSql)
+        appendStringInfoString(&fakeSql, "SELECT ");
+        deparseTargetList(&fakeSql, root, baserel->relid, rel, attrs_used,
+                      retrieved_attrs);
 
-	/*
-	 * Construct FROM clause
-	 */
-	appendStringInfoString(buf, " FROM ");
-	deparseRelation(buf, rel);
+    /*
+     * Construct FROM clause
+     */
+        appendStringInfoString(&fakeSql, " FROM ");
+        deparseRelation(&fakeSql, rel);
 
-    if (query != NULL) {
-        resetStringInfo(buf);
         deparseQuery(buf, rel);
     }
 
