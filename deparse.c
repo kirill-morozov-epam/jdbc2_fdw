@@ -741,26 +741,26 @@ deparseSelectSql(StringInfo buf,
             query = defGetString(def);
     }
 
-    if (query == NULL){
+
 	/*
 	 * Construct SELECT list
 	 */
-	    appendStringInfoString(buf, "SELECT ");
-	    deparseTargetList(buf, root, baserel->relid, rel, attrs_used,
+	appendStringInfoString(buf, "SELECT ");
+	deparseTargetList(buf, root, baserel->relid, rel, attrs_used,
 					  retrieved_attrs);
 
 	/*
 	 * Construct FROM clause
 	 */
-	    appendStringInfoString(buf, " FROM ");
-	    deparseRelation(buf, rel);
+	appendStringInfoString(buf, " FROM ");
+	deparseRelation(buf, rel);
 
-	    heap_close(rel, NoLock);
-    } else {
+    if (query != NULL) {
+        initStringInfo(buf);
         deparseQuery(buf, rel);
-        heap_close(rel, NoLock);
-
     }
+
+    heap_close(rel, NoLock);
 
 }
 /*
