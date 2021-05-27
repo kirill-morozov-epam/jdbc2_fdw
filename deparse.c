@@ -723,7 +723,7 @@ deparseSelectSql(StringInfo buf,
     const char *query = NULL;
     ListCell   *lc;
     ForeignTable *table;
-    StringInfoData fakeSql;
+    StringInfo fakeSql;
 
     /*
      * Core code already has some lock on each rel being planned, so we can
