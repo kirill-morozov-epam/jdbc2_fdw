@@ -719,6 +719,9 @@ deparseSelectSql(StringInfo buf,
 {
     RangeTblEntry *rte = planner_rt_fetch(baserel->relid, root);
     Relation	rel;
+    const char *query = NULL;
+    ListCell   *lc;
+    ForeignTable *table;
 
     /*
      * Core code already has some lock on each rel being planned, so we can
@@ -726,9 +729,39 @@ deparseSelectSql(StringInfo buf,
      */
     rel = heap_open(rte->relid, NoLock);
 
-    deparseQuery(buf, rel);
+    table = GetForeignTable(RelationGetRelid(rel));
 
-    heap_close(rel, NoLock);
+    /*
+     * Use value of FDW options if any, instead of the name of object itself.
+     */
+    foreach(lc, table->options)
+    {
+        DefElem    *def = (DefElem *) lfirst(lc);
+        if (strcmp(def->defname, "query") == 0)
+            query = defGetString(def);
+    }
+
+    if (query == NULL){
+	/*
+	 * Construct SELECT list
+	 */
+	    appendStringInfoString(buf, "SELECT ");
+	    deparseTargetList(buf, root, baserel->relid, rel, attrs_used,
+					  retrieved_attrs);
+
+	/*
+	 * Construct FROM clause
+	 */
+	    appendStringInfoString(buf, " FROM ");
+	    deparseRelation(buf, rel);
+
+	    heap_close(rel, NoLock);
+    } else {
+        deparseQuery(buf, rel);
+        heap_close(rel, NoLock);
+
+    }
+
 }
 /*
  * Emit a target list that retrieves the columns specified in attrs_used.
