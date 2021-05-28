@@ -742,6 +742,8 @@ deparseSelectSql(StringInfo buf,
             query = defGetString(def);
     }
     if (query == NULL) {
+
+        printf("In trino query section")
         /*
          * Construct SELECT list
          */
@@ -755,21 +757,19 @@ deparseSelectSql(StringInfo buf,
         appendStringInfoString(buf, " FROM ");
         deparseRelation(buf, rel);
 
-    }else{
-        /*
-  * Construct SELECT list
-  */
-        StringInfoData fakeSql;
-        initStringInfo(&fakeSql);
-        appendStringInfoString(&fakeSql, "SELECT ");
-        deparseTargetList(&fakeSql, root, baserel->relid, rel, attrs_used,
-                      retrieved_attrs);
 
-    /*
-     * Construct FROM clause
-     */
-        appendStringInfoString(&fakeSql, " FROM ");
-        deparseRelation(&fakeSql, rel);
+    }else{
+        printf("In trino schema section")
+
+
+//        StringInfoData fakeSql;
+//        initStringInfo(&fakeSql);
+//        appendStringInfoString(&fakeSql, "SELECT ");
+//        deparseTargetList(&fakeSql, root, baserel->relid, rel, attrs_used,
+//                      retrieved_attrs);
+//
+//        appendStringInfoString(&fakeSql, " FROM ");
+//        deparseRelation(&fakeSql, rel);
 
         deparseQuery(buf, rel);
     }
