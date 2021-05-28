@@ -764,7 +764,7 @@ deparseSelectSql(StringInfo buf,
 
         StringInfoData fakeSql;
         initStringInfo(&fakeSql);
-//        appendStringInfoString(&fakeSql, "SELECT ");
+        appendStringInfoString(&fakeSql, "SELECT ");
 //        deparseTargetList(&fakeSql, root, baserel->relid, rel, attrs_used,
 //                      retrieved_attrs);
 //
