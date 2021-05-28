@@ -760,17 +760,17 @@ deparseSelectSql(StringInfo buf,
         /*
   * Construct SELECT list
   */
-        StringInfoData fakeSql;
-        initStringInfo(&fakeSql);
-        appendStringInfoString(&fakeSql, "SELECT ");
-        deparseTargetList(&fakeSql, root, baserel->relid, rel, attrs_used,
+        StringInfo fakeSql;
+        initStringInfo(fakeSql);
+        appendStringInfoString(fakeSql, "SELECT ");
+        deparseTargetList(fakeSql, root, baserel->relid, rel, attrs_used,
                       retrieved_attrs);
 
     /*
      * Construct FROM clause
      */
-        appendStringInfoString(&fakeSql, " FROM ");
-        deparseRelation(&fakeSql, rel);
+        appendStringInfoString(fakeSql, " FROM ");
+        deparseRelation(fakeSql, rel);
 
         deparseQuery(buf, rel);
     }
