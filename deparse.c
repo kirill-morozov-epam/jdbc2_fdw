@@ -743,7 +743,7 @@ deparseSelectSql(StringInfo buf,
     }
     if (query == NULL) {
 
-        printf("In trino query section")
+        printf("In trino query section");
         /*
          * Construct SELECT list
          */
@@ -759,7 +759,7 @@ deparseSelectSql(StringInfo buf,
 
 
     }else{
-        printf("In trino schema section")
+        printf("In trino schema section");
 
 
 //        StringInfoData fakeSql;
