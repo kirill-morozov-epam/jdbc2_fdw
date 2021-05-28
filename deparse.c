@@ -760,7 +760,8 @@ deparseSelectSql(StringInfo buf,
         /*
   * Construct SELECT list
   */
-        fakeSql = makeStringInfo();
+        StringInfoData fakeSql;
+        initStringInfo(fakeSql);
         appendStringInfoString(fakeSql, "SELECT ");
         deparseTargetList(fakeSql, root, baserel->relid, rel, attrs_used,
                       retrieved_attrs);
