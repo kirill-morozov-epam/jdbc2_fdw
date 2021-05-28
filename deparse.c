@@ -723,7 +723,6 @@ deparseSelectSql(StringInfo buf,
     const char *query = NULL;
     ListCell   *lc;
     ForeignTable *table;
-    StringInfo fakeSql;
 
     /*
      * Core code already has some lock on each rel being planned, so we can
@@ -760,17 +759,17 @@ deparseSelectSql(StringInfo buf,
         /*
   * Construct SELECT list
   */
-        StringInfo fakeSql;
-        initStringInfo(fakeSql);
-        appendStringInfoString(fakeSql, "SELECT ");
-        deparseTargetList(fakeSql, root, baserel->relid, rel, attrs_used,
+        StringInfoData fakeSql;
+        initStringInfo(&fakeSql);
+        appendStringInfoString(&fakeSql, "SELECT ");
+        deparseTargetList(&fakeSql, root, baserel->relid, rel, attrs_used,
                       retrieved_attrs);
 
     /*
      * Construct FROM clause
      */
-        appendStringInfoString(fakeSql, " FROM ");
-        deparseRelation(fakeSql, rel);
+        appendStringInfoString(&fakeSql, " FROM ");
+        deparseRelation(&fakeSql, rel);
 
         deparseQuery(buf, rel);
     }
