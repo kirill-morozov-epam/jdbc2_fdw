@@ -767,9 +767,9 @@ deparseSelectSql(StringInfo buf,
         appendStringInfoString(&fakeSql, "SELECT ");
         deparseTargetList(&fakeSql, root, baserel->relid, rel, attrs_used,
                       retrieved_attrs);
-//
-//        appendStringInfoString(&fakeSql, " FROM ");
-//        deparseRelation(&fakeSql, rel);
+
+        appendStringInfoString(&fakeSql, " FROM ");
+        deparseRelation(&fakeSql, rel);
 
         deparseQuery(buf, rel);
     }
