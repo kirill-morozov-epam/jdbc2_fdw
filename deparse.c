@@ -762,8 +762,8 @@ deparseSelectSql(StringInfo buf,
 //        printf("In trino schema section");
 
 
-//        StringInfoData fakeSql;
-//        initStringInfo(&fakeSql);
+        StringInfoData fakeSql;
+        initStringInfo(&fakeSql);
 //        appendStringInfoString(&fakeSql, "SELECT ");
 //        deparseTargetList(&fakeSql, root, baserel->relid, rel, attrs_used,
 //                      retrieved_attrs);
