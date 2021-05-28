@@ -393,6 +393,7 @@ jdbcGetForeignRelSize(PlannerInfo *root,
 
     //TODO: remove this functionality and support for remote statistics
     ereport(DEBUG3, (errmsg("In jdbcGetForeignRelSize")));
+    ereport(LOG,(errmsg("In jdbcGetForeignRelSize")));
     /*
      * We use PgFdwRelationInfo to pass various information to subsequent
      * functions.
@@ -549,6 +550,7 @@ jdbcGetForeignPaths(PlannerInfo *root,
                         Oid foreigntableid)
 {
     ereport(DEBUG3, (errmsg("In jdbcGetForeignPaths")));
+    ereport(LOG,(errmsg("In jdbcGetForeignPaths")));
 
 	PgFdwRelationInfo *fpinfo = (PgFdwRelationInfo *) baserel->fdw_private;
     ForeignPath *path;
@@ -588,6 +590,7 @@ jdbcGetForeignPlan(PlannerInfo *root,
                        List *scan_clauses)
 {
     ereport(DEBUG3, (errmsg("In jdbcGetForeignPlan")));
+    ereport(LOG,(errmsg("In jdbcGetForeignPlan")));
     PgFdwRelationInfo *fpinfo = (PgFdwRelationInfo *) baserel->fdw_private;
     Index       scan_relid = baserel->relid;
     List       *fdw_private;
@@ -740,6 +743,7 @@ jdbcBeginForeignScan(ForeignScanState *node, int eflags)
     char *new_query;
 
     ereport(DEBUG3, (errmsg("In jdbcBeginForeignScan")));
+    ereport(LOG,(errmsg("In jdbcBeginForeignScan")));
     /*
      * Do nothing in EXPLAIN (no ANALYZE) case.  node->fdw_state stays NULL.
      */
@@ -861,6 +865,7 @@ static void
 postgresReScanForeignScan(ForeignScanState *node)
 {
     ereport(DEBUG3, (errmsg("In postgresReScanForeignScan")));
+    ereport(LOG,(errmsg("In postgresReScanForeignScan")));
 	PgFdwScanState *fsstate = (PgFdwScanState *) node->fdw_state;
     char        sql[64];
     Jresult   *res;
@@ -918,6 +923,7 @@ static void
 postgresEndForeignScan(ForeignScanState *node)
 {
     ereport(DEBUG3, (errmsg("In postgresEndForeignScan")));
+    ereport(LOG,(errmsg("In postgresEndForeignScan")));
     PgFdwScanState *fsstate = (PgFdwScanState *) node->fdw_state;
 
     /* if fsstate is NULL, we are in EXPLAIN; nothing to do */
@@ -951,6 +957,7 @@ postgresAddForeignUpdateTargets(Query *parsetree,
     /*
      * In jdbc2_fdw, what we need is the ctid, same as for a regular table.
      */
+    ereport(LOG,(errmsg("In postgresAddForeignUpdateTargets")));
 
     /* Make a Var representing the desired value */
     var = makeVar(parsetree->resultRelation,
@@ -996,6 +1003,8 @@ postgresPlanForeignModify(PlannerInfo *root,
     List       *targetAttrs = NIL;
     List       *returningList = NIL;
     List       *retrieved_attrs = NIL;
+
+    ereport(LOG,(errmsg("In postgresPlanForeignModify")));
 
     initStringInfo(&sql);
 
@@ -1107,6 +1116,8 @@ postgresBeginForeignModify(ModifyTableState *mtstate,
     bool        isvarlena;
     ListCell   *lc;
 
+    ereport(LOG,(errmsg("In postgresBeginForeignModify")));
+
     /*
      * Do nothing in EXPLAIN (no ANALYZE) case.  resultRelInfo->ri_FdwState
      * stays NULL.
@@ -1207,6 +1218,8 @@ postgresExecForeignInsert(EState *estate,
                           TupleTableSlot *slot,
                           TupleTableSlot *planSlot)
 {
+    ereport(LOG,(errmsg("In postgresExecForeignInsert")));
+
     PgFdwModifyState *fmstate = (PgFdwModifyState *) resultRelInfo->ri_FdwState;
     const char **p_values;
     Jresult   *res;
@@ -1271,6 +1284,8 @@ postgresExecForeignUpdate(EState *estate,
     const char **p_values;
     Jresult   *res;
     int         n_rows;
+
+    ereport(LOG,(errmsg("In postgresExecForeignUpdate")));
 
     /* Set up the prepared statement on the remote server, if we didn't yet */
     if (!fmstate->p_name)
@@ -1342,6 +1357,8 @@ postgresExecForeignDelete(EState *estate,
     Jresult   *res;
     int         n_rows;
 
+    ereport(LOG,(errmsg("In postgresExecForeignDelete")));
+
     /* Set up the prepared statement on the remote server, if we didn't yet */
     if (!fmstate->p_name)
         prepare_foreign_modify(fmstate);
@@ -1405,6 +1422,8 @@ postgresEndForeignModify(EState *estate,
 {
     PgFdwModifyState *fmstate = (PgFdwModifyState *) resultRelInfo->ri_FdwState;
 
+    ereport(LOG,(errmsg("In postgresEndForeignModify")));
+
     /* If fmstate is NULL, we are in EXPLAIN; nothing to do */
     if (fmstate == NULL)
         return;
@@ -1445,6 +1464,8 @@ postgresIsForeignRelUpdatable(Relation rel)
     ForeignTable *table;
     ForeignServer *server;
     ListCell   *lc;
+
+    ereport(LOG,(errmsg("In postgresIsForeignRelUpdatable")));
 
     /*
      * By default, all jdbc2_fdw foreign tables are assumed updatable. This
@@ -1488,6 +1509,8 @@ postgresExplainForeignScan(ForeignScanState *node, ExplainState *es)
     List       *fdw_private;
     char       *sql;
 
+    ereport(LOG,(errmsg("In postgresExplainForeignScan")));
+
     if (es->verbose)
     {
         fdw_private = ((ForeignScan *) node->ss.ps.plan)->fdw_private;
@@ -1507,6 +1530,7 @@ postgresExplainForeignModify(ModifyTableState *mtstate,
                              int subplan_index,
                              ExplainState *es)
 {
+    ereport(LOG,(errmsg("In postgresExplainForeignModify")));
     if (es->verbose)
     {
         char       *sql = strVal(list_nth(fdw_private,
@@ -2137,6 +2161,8 @@ postgresAnalyzeForeignTable(Relation relation,
     StringInfoData sql;
     Jresult   *volatile res = NULL;
 
+    ereport(LOG,(errmsg("In postgresAnalyzeForeignTable")));
+
     /* Return the row-analysis function pointer */
     *func = postgresAcquireSampleRowsFunc;
 
@@ -2219,6 +2245,8 @@ postgresAcquireSampleRowsFunc(Relation relation, int elevel,
     unsigned int cursor_number;
     StringInfoData sql;
     Jresult   *volatile res = NULL;
+
+    ereport(LOG,(errmsg("In postgresAcquireSampleRowsFunc")));
 
     /* Initialize workspace state */
     astate.rel = relation;
