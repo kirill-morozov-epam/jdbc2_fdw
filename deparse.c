@@ -764,20 +764,26 @@ deparseSelectSql(StringInfo buf,
 
         ereport(LOG,(errmsg("deparseSelectSql 2")));
 
-//        StringInfoData fakeSql;
-//        initStringInfo(&fakeSql);
-//        appendStringInfoString(&fakeSql, "SELECT ");
-//        deparseTargetList(&fakeSql, root, baserel->relid, rel, attrs_used,
-//                      retrieved_attrs);
-//
-//        appendStringInfoString(&fakeSql, " FROM ");
-//        deparseRelation(&fakeSql, rel);
+        StringInfoData fakeSql;
+        ereport(LOG,(errmsg("deparseSelectSql 3")));
+        initStringInfo(&fakeSql);
+        ereport(LOG,(errmsg("deparseSelectSql 4")));
+        appendStringInfoString(&fakeSql, "SELECT ");
+        ereport(LOG,(errmsg("deparseSelectSql 5")));
+        deparseTargetList(&fakeSql, root, baserel->relid, rel, attrs_used,
+                      retrieved_attrs);
+        ereport(LOG,(errmsg("deparseSelectSql 6")));
+
+        appendStringInfoString(&fakeSql, " FROM ");
+        ereport(LOG,(errmsg("deparseSelectSql 7")));
+        deparseRelation(&fakeSql, rel);
+        ereport(LOG,(errmsg("deparseSelectSql 8 SQL: %s  ", fakeSql.data)));
 
         deparseQuery(buf, rel);
 
     }
 
-    ereport(LOG,(errmsg("deparseSelectSql 3 ")));
+    ereport(LOG,(errmsg("deparseSelectSql 9 ")));
     heap_close(rel, NoLock);
 
 }
