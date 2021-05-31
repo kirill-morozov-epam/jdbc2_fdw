@@ -648,11 +648,13 @@ jdbcGetForeignPlan(PlannerInfo *root,
     initStringInfo(&sql);
     deparseSelectSql(&sql, root, baserel, fpinfo->attrs_used,
                      &retrieved_attrs);
+    ereport(LOG,(errmsg("In jdbcGetForeignPlan 0")));
 	if (remote_conds) {
 		appendWhereClause(&sql, root, baserel, remote_conds,
 		true, &params_list);
 	}
     ereport(DEBUG3, (errmsg("SQL: %s",sql.data)));
+    ereport(LOG,(errmsg("In jdbcGetForeignPlan 1")));
     /*
      * Add FOR UPDATE/SHARE if appropriate.  We apply locking during the
      * initial row fetch, rather than later on as is done for local tables.
@@ -698,6 +700,7 @@ jdbcGetForeignPlan(PlannerInfo *root,
             }
         }
     }
+    ereport(LOG,(errmsg("In jdbcGetForeignPlan 2")));
 
     /*
      * Build the fdw_private list that will be available to the executor.
@@ -715,6 +718,7 @@ jdbcGetForeignPlan(PlannerInfo *root,
      * field of the finished plan node; we can't keep them in private state
      * because then they wouldn't be subject to later planner processing.
      */
+    ereport(LOG,(errmsg("In jdbcGetForeignPlan 3")));
     return make_foreignscan(tlist,
                             local_exprs,
                             scan_relid,
