@@ -420,28 +420,34 @@ JQiterate(Jconn *conn, ForeignScanState *node){
 	HeapTuple tuple;
 	jstring tempString;
 
+    ereport(LOG,(errmsg("In JQiterate 0")));
 	numberOfColumns = conn->festate->NumberOfColumns;
 	utilsObject = conn->utilsObject;
 	if(utilsObject == NULL){
 		ereport(ERROR, (errmsg("Cannot get the utilsObject from the connection")));
 	}
+    ereport(LOG,(errmsg("In JQiterate 1")));
 	// Cleanup
 	ExecClearTuple(slot);
 	SIGINTInterruptCheckProcess();
 	if((*Jenv)->PushLocalFrame(Jenv, (numberOfColumns + 10)) < 0){
 		ereport(ERROR, (errmsg("Error pushing local java frame")));
 	}
+    ereport(LOG,(errmsg("In JQiterate 2")));
     JDBCUtilsClass = (*Jenv)->FindClass(Jenv, "JDBCUtils");
 	if(JDBCUtilsClass == NULL){
         ereport(ERROR, (errmsg("JDBCUtils class could not be created")));
     }
+    ereport(LOG,(errmsg("In JQiterate 3")));
     idResultSet = (*Jenv)->GetMethodID(Jenv, JDBCUtilsClass, "returnResultSet", "()[Ljava/lang/String;");
     if(idResultSet == NULL){
         ereport(ERROR, (errmsg("Failed to find the JDBCUtils.returnResultSet method!")));
     }
+    ereport(LOG,(errmsg("In JQiterate 4")));
 	// Allocate pointers to the row data
     values=(char **)palloc(numberOfColumns * sizeof(char *));
     rowArray = (*Jenv)->CallObjectMethod(Jenv, utilsObject, idResultSet);
+    ereport(LOG,(errmsg("In JQiterate 5")));
     if(rowArray != NULL){
     	for(i=0; i < numberOfColumns; i++){
     		values[i] = ConvertStringToCString((jobject)(*Jenv)->GetObjectArrayElement(Jenv, rowArray, i));
@@ -457,7 +463,9 @@ JQiterate(Jconn *conn, ForeignScanState *node){
     	}
     	(*Jenv)->DeleteLocalRef(Jenv, rowArray);
     }
+    ereport(LOG,(errmsg("In JQiterate 6")));
     (*Jenv)->PopLocalFrame(Jenv, NULL);
+    ereport(LOG,(errmsg("In JQiterate 7")));
     return(slot);
 }
 
