@@ -776,7 +776,7 @@ deparseSelectSql(StringInfo buf,
 
         appendStringInfoString(&fakeSql, " FROM ");
         ereport(LOG,(errmsg("deparseSelectSql 7 SQL: %s  ", fakeSql.data)));
-        deparseRelation(&fakeSql, rel);
+//        deparseRelation(&fakeSql, rel);
         ereport(LOG,(errmsg("deparseSelectSql 8 SQL: %s  ", fakeSql.data)));
 
         deparseQuery(buf, rel);
