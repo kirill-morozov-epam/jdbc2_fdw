@@ -419,6 +419,7 @@ JQiterate(Jconn *conn, ForeignScanState *node){
 	int i;
 	HeapTuple tuple;
 	jstring tempString;
+    AttInMetadata *attinmeta;
 
     ereport(LOG,(errmsg("In JQiterate 0 ")));
 	numberOfColumns = conn->festate->NumberOfColumns;
@@ -445,8 +446,7 @@ JQiterate(Jconn *conn, ForeignScanState *node){
     }
     ereport(LOG,(errmsg("In JQiterate 4")));
 	// Allocate pointers to the row data
-//    values=(char **)palloc(numberOfColumns * sizeof(char *));
-    values=(char**)palloc(sizeof(char*)*numberOfColumns);
+    values=(char **)palloc(numberOfColumns * sizeof(char *));
     rowArray = (*Jenv)->CallObjectMethod(Jenv, utilsObject, idResultSet);
     ereport(LOG,(errmsg("In JQiterate 5")));
     if(rowArray != NULL){
@@ -456,7 +456,10 @@ JQiterate(Jconn *conn, ForeignScanState *node){
             ereport(LOG, (errmsg("In JQiterate 501 %d: %s", i, values[i])));
     	}
         ereport(LOG,(errmsg("In JQiterate 51")));
-    	tuple = BuildTupleFromCStrings(TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att), values);
+        attinmeta = TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att);
+        ereport(LOG,(errmsg("In JQiterate 511")));
+        tuple = BuildTupleFromCStrings(attinmeta, values);
+//    	tuple = BuildTupleFromCStrings(TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att), values);
         ereport(LOG,(errmsg("In JQiterate 52")));
     	ExecStoreHeapTuple(tuple, slot, InvalidBuffer, false);
         ereport(LOG,(errmsg("In JQiterate 53")));
