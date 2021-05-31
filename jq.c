@@ -347,41 +347,51 @@ JQexec(Jconn *conn, const char *query)
 	Jresult *res;
 
 	ereport(DEBUG3, (errmsg("JQexec(%p): %s", conn, query)));
+    ereport(LOG, (errmsg("JQexec(%p): %s", conn, query)));
+
     // Our object of the JDBCUtils class is on the connection
     if(conn->utilsObject == NULL){
         ereport(ERROR, (errmsg("utilsObject is not on connection! Has the connection not been created?")));
     }
 	//TODO: Need to reclaim this memory
+    ereport(LOG, (errmsg("In JQexec 1")));
 	res = (Jresult *)palloc(sizeof(Jresult));
 	res->resultStatus = PGRES_FATAL_ERROR; // Be pessimistic
 
+    ereport(LOG, (errmsg("In JQexec 2")));
     JDBCUtilsClass = (*Jenv)->FindClass(Jenv, "JDBCUtils");
 	if(JDBCUtilsClass == NULL){
         ereport(ERROR, (errmsg("JDBCUtils class could not be created")));
     }
+    ereport(LOG, (errmsg("In JQexec 3")));
     idCreateStatement = (*Jenv)->GetMethodID(Jenv, JDBCUtilsClass, "createStatement",
                                                 "(Ljava/lang/String;)Ljava/lang/String;");
     if(idCreateStatement == NULL){
         ereport(ERROR, (errmsg("Failed to find the JDBCUtils.createStatement method!")));
     }
     // The query argument
+    ereport(LOG, (errmsg("In JQexec 4")));
     statement = (*Jenv)->NewStringUTF(Jenv, query);
     if(statement == NULL){
         ereport(ERROR, (errmsg("Failed to create query argument")));
     }
+    ereport(LOG, (errmsg("In JQexec 5")));
     returnValue = NULL;
     returnValue = (*Jenv)->CallObjectMethod(Jenv, conn->utilsObject, idCreateStatement, statement);
     if(returnValue != NULL){  // Happy return Value is null
         cString = ConvertStringToCString((jobject)returnValue);
         ereport(ERROR, (errmsg("%s", cString)));
     }
+    ereport(LOG, (errmsg("In JQexec 6")));
     // Set up the execution state
     idNumberOfColumns = (*Jenv)->GetFieldID(Jenv, JDBCUtilsClass, "numberOfColumns" , "I");
     if (idNumberOfColumns == NULL){
             ereport(ERROR, (errmsg("Cannot read the number of columns")));
     }
+    ereport(LOG, (errmsg("In JQexec 7")));
     conn->festate->NumberOfColumns = (*Jenv)->GetIntField(Jenv, conn->utilsObject, idNumberOfColumns);
     // Return Java memory
+    ereport(LOG, (errmsg("In JQexec 8")));
     (*Jenv)->DeleteLocalRef(Jenv, statement);
     (*Jenv)->ReleaseStringUTFChars(Jenv, returnValue, cString);
     (*Jenv)->DeleteLocalRef(Jenv, returnValue);
