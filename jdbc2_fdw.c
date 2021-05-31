@@ -719,11 +719,16 @@ jdbcGetForeignPlan(PlannerInfo *root,
      * because then they wouldn't be subject to later planner processing.
      */
     ereport(LOG,(errmsg("In jdbcGetForeignPlan 3")));
+//    return make_foreignscan(tlist,
+//                            local_exprs,
+//                            scan_relid,
+//                            params_list,
+//                            fdw_private);
     return make_foreignscan(tlist,
                             local_exprs,
                             scan_relid,
-                            params_list,
-                            fdw_private);
+                            NIL,
+                            NIL);
 }
 
 /*
