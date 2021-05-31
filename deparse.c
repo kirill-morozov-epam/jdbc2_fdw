@@ -717,6 +717,7 @@ deparseSelectSql(StringInfo buf,
                  Bitmapset *attrs_used,
                  List **retrieved_attrs)
 {
+    ereport(LOG,(errmsg("deparseSelectSql 0")));
     RangeTblEntry *rte = planner_rt_fetch(baserel->relid, root);
     Relation	rel;
 
@@ -743,7 +744,7 @@ deparseSelectSql(StringInfo buf,
     }
     if (query == NULL) {
 
-        ereport(LOG,(errmsg("In trino schema section")));
+        ereport(LOG,(errmsg("deparseSelectSql 1")));
 //        printf("In trino query section");
         /*
          * Construct SELECT list
@@ -761,7 +762,7 @@ deparseSelectSql(StringInfo buf,
 
     }else{
 
-        ereport(LOG,(errmsg("In trino query section")));
+        ereport(LOG,(errmsg("deparseSelectSql 2")));
 
 //        StringInfoData fakeSql;
 //        initStringInfo(&fakeSql);
@@ -773,8 +774,10 @@ deparseSelectSql(StringInfo buf,
 //        deparseRelation(&fakeSql, rel);
 
         deparseQuery(buf, rel);
+
     }
 
+    ereport(LOG,(errmsg("deparseSelectSql 3 ")));
     heap_close(rel, NoLock);
 
 }

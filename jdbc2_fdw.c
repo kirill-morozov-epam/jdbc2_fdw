@@ -590,7 +590,7 @@ jdbcGetForeignPlan(PlannerInfo *root,
                        List *scan_clauses)
 {
     ereport(DEBUG3, (errmsg("In jdbcGetForeignPlan")));
-    ereport(LOG,(errmsg("In jdbcGetForeignPlan")));
+    ereport(LOG,(errmsg("In jdbcGetForeignPlan -1")));
     PgFdwRelationInfo *fpinfo = (PgFdwRelationInfo *) baserel->fdw_private;
     Index       scan_relid = baserel->relid;
     List       *fdw_private;
