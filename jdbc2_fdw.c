@@ -868,10 +868,14 @@ jdbcBeginForeignScan(ForeignScanState *node, int eflags)
 static TupleTableSlot *
 jdbcIterateForeignScan(ForeignScanState *node)
 {
+    ereport(LOG,(errmsg("In jdbcIterateForeignScan 0")));
     PgFdwScanState *fsstate = (PgFdwScanState *) node->fdw_state;
+    ereport(LOG,(errmsg("In jdbcIterateForeignScan 1")));
     TupleTableSlot *slot;
+    ereport(LOG,(errmsg("In jdbcIterateForeignScan 2")));
 
     slot = JQiterate(fsstate->conn, node);
+    ereport(LOG,(errmsg("In jdbcIterateForeignScan 3")));
     return node->ss.ss_ScanTupleSlot;
 }
 
