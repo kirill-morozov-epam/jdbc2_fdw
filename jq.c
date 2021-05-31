@@ -420,13 +420,13 @@ JQiterate(Jconn *conn, ForeignScanState *node){
 	HeapTuple tuple;
 	jstring tempString;
 
-    ereport(LOG,(errmsg("In JQiterate 0")));
+    ereport(LOG,(errmsg("In JQiterate 0 ")));
 	numberOfColumns = conn->festate->NumberOfColumns;
 	utilsObject = conn->utilsObject;
 	if(utilsObject == NULL){
 		ereport(ERROR, (errmsg("Cannot get the utilsObject from the connection")));
 	}
-    ereport(LOG,(errmsg("In JQiterate 1")));
+    ereport(LOG,(errmsg("In JQiterate 1, columns is %d", numberOfColumns)));
 	// Cleanup
 	ExecClearTuple(slot);
 	SIGINTInterruptCheckProcess();
@@ -454,6 +454,7 @@ JQiterate(Jconn *conn, ForeignScanState *node){
     		values[i] = ConvertStringToCString((jobject)(*Jenv)->GetObjectArrayElement(Jenv, rowArray, i));
     	}
         ereport(LOG,(errmsg("In JQiterate 51")));
+        ereport(LOG, (errmsg("In JQiterate 51: %s",values)));
     	tuple = BuildTupleFromCStrings(TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att), values);
         ereport(LOG,(errmsg("In JQiterate 52")));
     	ExecStoreHeapTuple(tuple, slot, InvalidBuffer, false);
