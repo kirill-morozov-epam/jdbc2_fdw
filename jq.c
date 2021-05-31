@@ -445,7 +445,8 @@ JQiterate(Jconn *conn, ForeignScanState *node){
     }
     ereport(LOG,(errmsg("In JQiterate 4")));
 	// Allocate pointers to the row data
-    values=(char **)palloc(numberOfColumns * sizeof(char *));
+//    values=(char **)palloc(numberOfColumns * sizeof(char *));
+    values=(char**)palloc(sizeof(char*)*numberOfColumns);
     rowArray = (*Jenv)->CallObjectMethod(Jenv, utilsObject, idResultSet);
     ereport(LOG,(errmsg("In JQiterate 5")));
     if(rowArray != NULL){
