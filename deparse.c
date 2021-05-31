@@ -748,9 +748,9 @@ deparseSelectSql(StringInfo buf,
         /*
          * Construct SELECT list
          */
-        appendStringInfoString(buf, "SELECT ");
-        deparseTargetList(buf, root, baserel->relid, rel, attrs_used,
-                          retrieved_attrs);
+        appendStringInfoString(buf, "SELECT *");
+//        deparseTargetList(buf, root, baserel->relid, rel, attrs_used,
+//                          retrieved_attrs);
 
         /*
          * Construct FROM clause
@@ -760,7 +760,7 @@ deparseSelectSql(StringInfo buf,
 
 
     }else{
-//        printf("In trino schema section");
+
         ereport(LOG,(errmsg("In trino query section")));
 
 //        StringInfoData fakeSql;
