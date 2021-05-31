@@ -854,6 +854,9 @@ jdbcBeginForeignScan(ForeignScanState *node, int eflags)
         fsstate->param_values = (const char **) palloc0(numParams * sizeof(char *));
     else
         fsstate->param_values = NULL;
+
+    ereport(LOG,(errmsg("In jdbcBeginForeignScan 9")));
+
     (void)JQexec(fsstate->conn, fsstate->query);
 }
 
