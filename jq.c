@@ -452,7 +452,7 @@ JQiterate(Jconn *conn, ForeignScanState *node){
         ereport(LOG,(errmsg("In JQiterate 50")));
     	for(i=0; i < numberOfColumns; i++){
     		values[i] = ConvertStringToCString((jobject)(*Jenv)->GetObjectArrayElement(Jenv, rowArray, i));
-            ereport(LOG, (errmsg("In JQiterate 501: %s",values[i])));
+            ereport(LOG, (errmsg("In JQiterate 501 %d: %s", i, values[i])));
     	}
         ereport(LOG,(errmsg("In JQiterate 51")));
     	tuple = BuildTupleFromCStrings(TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att), values);
