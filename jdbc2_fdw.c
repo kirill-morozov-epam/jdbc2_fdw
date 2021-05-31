@@ -718,7 +718,7 @@ jdbcGetForeignPlan(PlannerInfo *root,
      * field of the finished plan node; we can't keep them in private state
      * because then they wouldn't be subject to later planner processing.
      */
-    ereport(LOG,(errmsg("In jdbcGetForeignPlan 3")));
+    ereport(LOG,(errmsg("In jdbcGetForeignPlan 3: SQL: %s ", sql.data)));
 //    return make_foreignscan(tlist,
 //                            local_exprs,
 //                            scan_relid,
@@ -728,7 +728,7 @@ jdbcGetForeignPlan(PlannerInfo *root,
                             local_exprs,
                             scan_relid,
                             NIL,
-                            NIL);
+                            fdw_private);
 }
 
 /*
