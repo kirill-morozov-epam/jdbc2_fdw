@@ -449,18 +449,24 @@ JQiterate(Jconn *conn, ForeignScanState *node){
     rowArray = (*Jenv)->CallObjectMethod(Jenv, utilsObject, idResultSet);
     ereport(LOG,(errmsg("In JQiterate 5")));
     if(rowArray != NULL){
+        ereport(LOG,(errmsg("In JQiterate 50")));
     	for(i=0; i < numberOfColumns; i++){
     		values[i] = ConvertStringToCString((jobject)(*Jenv)->GetObjectArrayElement(Jenv, rowArray, i));
     	}
+        ereport(LOG,(errmsg("In JQiterate 51")));
     	tuple = BuildTupleFromCStrings(TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att), values);
+        ereport(LOG,(errmsg("In JQiterate 52")));
     	ExecStoreHeapTuple(tuple, slot, InvalidBuffer, false);
+        ereport(LOG,(errmsg("In JQiterate 53")));
     	++(conn->festate->NumberOfRows);
     	// Take out the garbage
+        ereport(LOG,(errmsg("In JQiterate 54")));
     	for(i=0; i < numberOfColumns; i++){
     		tempString = (jstring)(*Jenv)->GetObjectArrayElement(Jenv, rowArray,i);
     		(*Jenv)->ReleaseStringUTFChars(Jenv, tempString, values[i]);
     		(*Jenv)->DeleteLocalRef(Jenv, tempString);
     	}
+        ereport(LOG,(errmsg("In JQiterate 55")));
     	(*Jenv)->DeleteLocalRef(Jenv, rowArray);
     }
     ereport(LOG,(errmsg("In JQiterate 6")));
