@@ -393,9 +393,13 @@ JQexec(Jconn *conn, const char *query)
     // Return Java memory
     ereport(LOG, (errmsg("In JQexec 8")));
     (*Jenv)->DeleteLocalRef(Jenv, statement);
+    ereport(LOG, (errmsg("In JQexec 9")));
     (*Jenv)->ReleaseStringUTFChars(Jenv, returnValue, cString);
+    ereport(LOG, (errmsg("In JQexec 10")));
     (*Jenv)->DeleteLocalRef(Jenv, returnValue);
+    ereport(LOG, (errmsg("In JQexec 11")));
     res->resultStatus = PGRES_COMMAND_OK;
+    ereport(LOG, (errmsg("In JQexec 12")));
     return res;
 }
 
