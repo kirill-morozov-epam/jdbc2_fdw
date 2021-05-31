@@ -755,12 +755,16 @@ jdbcBeginForeignScan(ForeignScanState *node, int eflags)
     fsstate = (PgFdwScanState *) palloc0(sizeof(PgFdwScanState));
     node->fdw_state = (void *) fsstate;
 
+    ereport(LOG,(errmsg("In jdbcBeginForeignScan 1")));
+
     /*
      * Identify which user to do the remote access as.  This should match what
      * ExecCheckRTEPerms() does.
      */
     rte = rt_fetch(fsplan->scan.scanrelid, estate->es_range_table);
     userid = rte->checkAsUser ? rte->checkAsUser : GetUserId();
+
+    ereport(LOG,(errmsg("In jdbcBeginForeignScan 2")));
 
     /* Get info about foreign table. */
     fsstate->rel = node->ss.ss_currentRelation;
@@ -772,6 +776,9 @@ jdbcBeginForeignScan(ForeignScanState *node, int eflags)
     user = GetUserMapping(userid, server->serverid);
 
     ereport(DEBUG3, (errmsg("Local table: %s", RelationGetRelationName(fsstate->rel))));
+
+    ereport(LOG,(errmsg("In jdbcBeginForeignScan 3")));
+    ereport(LOG,(errmsg("Local table: %s", RelationGetRelationName(fsstate->rel))));
     /*
      * Get connection to the foreign server.  Connection manager will
      * establish new connection if necessary.
@@ -788,6 +795,8 @@ jdbcBeginForeignScan(ForeignScanState *node, int eflags)
     fsstate->retrieved_attrs = (List *) list_nth(fsplan->fdw_private,
                                                FdwScanPrivateRetrievedAttrs);
 
+    ereport(LOG,(errmsg("In jdbcBeginForeignScan 4")));
+
     /* Create contexts for batches of tuples and per-tuple temp workspace. */
     fsstate->batch_cxt = AllocSetContextCreate(estate->es_query_cxt,
                                                "jdbc2_fdw tuple data",
@@ -800,6 +809,8 @@ jdbcBeginForeignScan(ForeignScanState *node, int eflags)
                                               ALLOCSET_SMALL_INITSIZE,
                                               ALLOCSET_SMALL_MAXSIZE);
 
+    ereport(LOG,(errmsg("In jdbcBeginForeignScan 5")));
+
     /* Get info we'll need for input data conversion. */
     fsstate->attinmeta = TupleDescGetAttInMetadata(RelationGetDescr(fsstate->rel));
 
@@ -807,6 +818,8 @@ jdbcBeginForeignScan(ForeignScanState *node, int eflags)
     numParams = list_length(fsplan->fdw_exprs);
     fsstate->numParams = numParams;
     fsstate->param_flinfo = (FmgrInfo *) palloc0(sizeof(FmgrInfo) * numParams);
+
+    ereport(LOG,(errmsg("In jdbcBeginForeignScan 6")));
 
     i = 0;
     foreach(lc, fsplan->fdw_exprs)
@@ -828,6 +841,7 @@ jdbcBeginForeignScan(ForeignScanState *node, int eflags)
      * benefit, and it'd require jdbc2_fdw to know more than is desirable
      * about Param evaluation.)
      */
+    ereport(LOG,(errmsg("In jdbcBeginForeignScan 7")));
     fsstate->param_exprs = (List *)
         ExecInitExpr((Expr *) fsplan->fdw_exprs,
                      (PlanState *) node);
@@ -835,6 +849,7 @@ jdbcBeginForeignScan(ForeignScanState *node, int eflags)
     /*
      * Allocate buffer for text form of query parameters, if any.
      */
+    ereport(LOG,(errmsg("In jdbcBeginForeignScan 8")));
     if (numParams > 0)
         fsstate->param_values = (const char **) palloc0(numParams * sizeof(char *));
     else
