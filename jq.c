@@ -391,7 +391,7 @@ JQexec(Jconn *conn, const char *query)
     ereport(LOG, (errmsg("In JQexec 7")));
     conn->festate->NumberOfColumns = (*Jenv)->GetIntField(Jenv, conn->utilsObject, idNumberOfColumns);
     // Return Java memory
-    ereport(LOG, (errmsg("In JQexec 8")));
+    ereport(LOG, (errmsg("In JQexec 8 : %d", conn->festate->NumberOfColumns)));
     (*Jenv)->DeleteLocalRef(Jenv, statement);
     ereport(LOG, (errmsg("In JQexec 9")));
     (*Jenv)->ReleaseStringUTFChars(Jenv, returnValue, cString);

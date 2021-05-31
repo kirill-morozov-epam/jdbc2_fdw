@@ -763,14 +763,14 @@ deparseSelectSql(StringInfo buf,
 //        printf("In trino schema section");
         ereport(LOG,(errmsg("In trino query section")));
 
-        StringInfoData fakeSql;
-        initStringInfo(&fakeSql);
-        appendStringInfoString(&fakeSql, "SELECT ");
-        deparseTargetList(&fakeSql, root, baserel->relid, rel, attrs_used,
-                      retrieved_attrs);
-
-        appendStringInfoString(&fakeSql, " FROM ");
-        deparseRelation(&fakeSql, rel);
+//        StringInfoData fakeSql;
+//        initStringInfo(&fakeSql);
+//        appendStringInfoString(&fakeSql, "SELECT ");
+//        deparseTargetList(&fakeSql, root, baserel->relid, rel, attrs_used,
+//                      retrieved_attrs);
+//
+//        appendStringInfoString(&fakeSql, " FROM ");
+//        deparseRelation(&fakeSql, rel);
 
         deparseQuery(buf, rel);
     }
