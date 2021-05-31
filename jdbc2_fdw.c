@@ -654,7 +654,7 @@ jdbcGetForeignPlan(PlannerInfo *root,
 		true, &params_list);
 	}
     ereport(DEBUG3, (errmsg("SQL: %s",sql.data)));
-    ereport(LOG,(errmsg("In jdbcGetForeignPlan 1")));
+    ereport(LOG,(errmsg("In jdbcGetForeignPlan 1: SQL: %s ", sql.data)));
     /*
      * Add FOR UPDATE/SHARE if appropriate.  We apply locking during the
      * initial row fetch, rather than later on as is done for local tables.
