@@ -724,6 +724,7 @@ deparseSelectSql(StringInfo buf,
     const char *query = NULL;
     ListCell   *lc;
     ForeignTable *table;
+    StringInfoData fakeSql;
 
     /*
      * Core code already has some lock on each rel being planned, so we can
@@ -732,6 +733,8 @@ deparseSelectSql(StringInfo buf,
     rel = heap_open(rte->relid, NoLock);
 
     table = GetForeignTable(RelationGetRelid(rel));
+
+    initStringInfo(&fakeSql);
 
     /*
      * Use value of FDW options if any, instead of the name of object itself.
@@ -744,14 +747,14 @@ deparseSelectSql(StringInfo buf,
     }
     if (query == NULL) {
 
-        ereport(LOG,(errmsg("deparseSelectSql 1")));
-//        printf("In trino query section");
+        ereport(LOG,(errmsg("deparseSelectSql schema case")));
+
         /*
          * Construct SELECT list
          */
         appendStringInfoString(buf, "SELECT *");
-//        deparseTargetList(buf, root, baserel->relid, rel, attrs_used,
-//                          retrieved_attrs);
+        deparseTargetList(fakeSql, root, baserel->relid, rel, attrs_used,
+                          retrieved_attrs);
 
         /*
          * Construct FROM clause
@@ -761,22 +764,12 @@ deparseSelectSql(StringInfo buf,
 
 
     }else{
+        ereport(LOG,(errmsg("deparseSelectSql query case")));
 
-        ereport(LOG,(errmsg("deparseSelectSql 2")));
-
-        StringInfoData fakeSql;
-        ereport(LOG,(errmsg("deparseSelectSql 3")));
-        initStringInfo(&fakeSql);
-        ereport(LOG,(errmsg("deparseSelectSql 4")));
         appendStringInfoString(&fakeSql, "SELECT ");
-        ereport(LOG,(errmsg("deparseSelectSql 5")));
         deparseTargetList(&fakeSql, root, baserel->relid, rel, attrs_used,
                       retrieved_attrs);
-        ereport(LOG,(errmsg("deparseSelectSql 6")));
-
         appendStringInfoString(&fakeSql, " FROM ");
-        ereport(LOG,(errmsg("deparseSelectSql 7 SQL: %s  ", fakeSql.data)));
-//        deparseRelation(&fakeSql, rel);
         ereport(LOG,(errmsg("deparseSelectSql 8 SQL: %s  ", fakeSql.data)));
 
         deparseQuery(buf, rel);
