@@ -354,52 +354,41 @@ JQexec(Jconn *conn, const char *query)
         ereport(ERROR, (errmsg("utilsObject is not on connection! Has the connection not been created?")));
     }
 	//TODO: Need to reclaim this memory
-    ereport(LOG, (errmsg("In JQexec 1")));
 	res = (Jresult *)palloc(sizeof(Jresult));
 	res->resultStatus = PGRES_FATAL_ERROR; // Be pessimistic
 
-    ereport(LOG, (errmsg("In JQexec 2")));
     JDBCUtilsClass = (*Jenv)->FindClass(Jenv, "JDBCUtils");
 	if(JDBCUtilsClass == NULL){
         ereport(ERROR, (errmsg("JDBCUtils class could not be created")));
     }
-    ereport(LOG, (errmsg("In JQexec 3")));
     idCreateStatement = (*Jenv)->GetMethodID(Jenv, JDBCUtilsClass, "createStatement",
                                                 "(Ljava/lang/String;)Ljava/lang/String;");
     if(idCreateStatement == NULL){
         ereport(ERROR, (errmsg("Failed to find the JDBCUtils.createStatement method!")));
     }
     // The query argument
-    ereport(LOG, (errmsg("In JQexec 4")));
     statement = (*Jenv)->NewStringUTF(Jenv, query);
     if(statement == NULL){
         ereport(ERROR, (errmsg("Failed to create query argument")));
     }
-    ereport(LOG, (errmsg("In JQexec 5")));
     returnValue = NULL;
     returnValue = (*Jenv)->CallObjectMethod(Jenv, conn->utilsObject, idCreateStatement, statement);
     if(returnValue != NULL){  // Happy return Value is null
         cString = ConvertStringToCString((jobject)returnValue);
         ereport(ERROR, (errmsg("%s", cString)));
     }
-    ereport(LOG, (errmsg("In JQexec 6")));
     // Set up the execution state
     idNumberOfColumns = (*Jenv)->GetFieldID(Jenv, JDBCUtilsClass, "numberOfColumns" , "I");
     if (idNumberOfColumns == NULL){
             ereport(ERROR, (errmsg("Cannot read the number of columns")));
     }
-    ereport(LOG, (errmsg("In JQexec 7")));
     conn->festate->NumberOfColumns = (*Jenv)->GetIntField(Jenv, conn->utilsObject, idNumberOfColumns);
     // Return Java memory
     ereport(LOG, (errmsg("In JQexec 8 : %d", conn->festate->NumberOfColumns)));
     (*Jenv)->DeleteLocalRef(Jenv, statement);
-    ereport(LOG, (errmsg("In JQexec 9")));
     (*Jenv)->ReleaseStringUTFChars(Jenv, returnValue, cString);
-    ereport(LOG, (errmsg("In JQexec 10")));
     (*Jenv)->DeleteLocalRef(Jenv, returnValue);
-    ereport(LOG, (errmsg("In JQexec 11")));
     res->resultStatus = PGRES_COMMAND_OK;
-    ereport(LOG, (errmsg("In JQexec 12")));
     return res;
 }
 
@@ -421,62 +410,48 @@ JQiterate(Jconn *conn, ForeignScanState *node){
 	jstring tempString;
     AttInMetadata *attinmeta;
 
-    ereport(LOG,(errmsg("In JQiterate 0 ")));
 	numberOfColumns = conn->festate->NumberOfColumns;
 	utilsObject = conn->utilsObject;
 	if(utilsObject == NULL){
 		ereport(ERROR, (errmsg("Cannot get the utilsObject from the connection")));
 	}
-    ereport(LOG,(errmsg("In JQiterate 1, columns is %d", numberOfColumns)));
 	// Cleanup
 	ExecClearTuple(slot);
 	SIGINTInterruptCheckProcess();
 	if((*Jenv)->PushLocalFrame(Jenv, (numberOfColumns + 10)) < 0){
 		ereport(ERROR, (errmsg("Error pushing local java frame")));
 	}
-    ereport(LOG,(errmsg("In JQiterate 2")));
     JDBCUtilsClass = (*Jenv)->FindClass(Jenv, "JDBCUtils");
 	if(JDBCUtilsClass == NULL){
         ereport(ERROR, (errmsg("JDBCUtils class could not be created")));
     }
-    ereport(LOG,(errmsg("In JQiterate 3")));
     idResultSet = (*Jenv)->GetMethodID(Jenv, JDBCUtilsClass, "returnResultSet", "()[Ljava/lang/String;");
     if(idResultSet == NULL){
         ereport(ERROR, (errmsg("Failed to find the JDBCUtils.returnResultSet method!")));
     }
-    ereport(LOG,(errmsg("In JQiterate 4")));
 	// Allocate pointers to the row data
     values=(char **)palloc(numberOfColumns * sizeof(char *));
     rowArray = (*Jenv)->CallObjectMethod(Jenv, utilsObject, idResultSet);
-    ereport(LOG,(errmsg("In JQiterate 5")));
     if(rowArray != NULL){
-        ereport(LOG,(errmsg("In JQiterate 50")));
     	for(i=0; i < numberOfColumns; i++){
     		values[i] = ConvertStringToCString((jobject)(*Jenv)->GetObjectArrayElement(Jenv, rowArray, i));
-            ereport(LOG, (errmsg("In JQiterate 501 %d: %s", i, values[i])));
+//            ereport(LOG, (errmsg("In JQiterate 501 %d: %s", i, values[i])));
     	}
-        ereport(LOG,(errmsg("In JQiterate 51")));
         attinmeta = TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att);
-        ereport(LOG,(errmsg("In JQiterate 511: %d", attinmeta->tupdesc->natts)));
+//        ereport(LOG,(errmsg("In JQiterate 511: %d", attinmeta->tupdesc->natts)));
         tuple = BuildTupleFromCStrings(attinmeta, values);
 //    	tuple = BuildTupleFromCStrings(TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att), values);
-        ereport(LOG,(errmsg("In JQiterate 52")));
     	ExecStoreHeapTuple(tuple, slot, InvalidBuffer, false);
-        ereport(LOG,(errmsg("In JQiterate 53")));
     	++(conn->festate->NumberOfRows);
     	// Take out the garbage
-        ereport(LOG,(errmsg("In JQiterate 54")));
     	for(i=0; i < numberOfColumns; i++){
     		tempString = (jstring)(*Jenv)->GetObjectArrayElement(Jenv, rowArray,i);
     		(*Jenv)->ReleaseStringUTFChars(Jenv, tempString, values[i]);
     		(*Jenv)->DeleteLocalRef(Jenv, tempString);
     	}
-        ereport(LOG,(errmsg("In JQiterate 55")));
     	(*Jenv)->DeleteLocalRef(Jenv, rowArray);
     }
-    ereport(LOG,(errmsg("In JQiterate 6")));
     (*Jenv)->PopLocalFrame(Jenv, NULL);
-    ereport(LOG,(errmsg("In JQiterate 7")));
     return(slot);
 }
 
