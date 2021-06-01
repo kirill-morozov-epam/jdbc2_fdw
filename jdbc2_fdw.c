@@ -948,7 +948,7 @@ postgresReScanForeignScan(ForeignScanState *node)
 static void
 postgresEndForeignScan(ForeignScanState *node)
 {
-    ereport(DEBUG3, (errmsg("In postgresEndForeignScan")));
+    ereport(DEBUG3, (errmsg("In postgresEndForeignScan 0")));
     ereport(LOG,(errmsg("In postgresEndForeignScan")));
     PgFdwScanState *fsstate = (PgFdwScanState *) node->fdw_state;
 
@@ -956,13 +956,17 @@ postgresEndForeignScan(ForeignScanState *node)
     if (fsstate == NULL)
         return;
 
+    ereport(LOG,(errmsg("In postgresEndForeignScan 1")));
     /* Close the cursor if open, to prevent accumulation of cursors */
     if (fsstate->cursor_exists)
         close_cursor(fsstate->conn, fsstate->cursor_number);
 
+    ereport(LOG,(errmsg("In postgresEndForeignScan 2")));
     /* Release remote connection */
     ReleaseConnection(fsstate->conn);
+    ereport(LOG,(errmsg("In postgresEndForeignScan 3")));
     fsstate->conn = NULL;
+    ereport(LOG,(errmsg("In postgresEndForeignScan 4")));
 
     /* MemoryContexts will be deleted automatically. */
 }
