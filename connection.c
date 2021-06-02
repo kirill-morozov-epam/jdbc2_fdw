@@ -592,13 +592,16 @@ pgfdw_xact_callback(XactEvent event, void *arg)
          * recover. Next GetConnection will open a new connection.
          */
         if (JQstatus(entry->conn) != CONNECTION_OK ||
+            ereport(LOG,(errmsg("In pgfdw_xact_callback 11")));
             JQtransactionStatus(entry->conn) != PQTRANS_IDLE)
         {
+            ereport(LOG,(errmsg("In pgfdw_xact_callback 12")));
             elog(DEBUG3, "discarding connection %p", entry->conn);
             JQfinish(entry->conn);
+            ereport(LOG,(errmsg("In pgfdw_xact_callback 13")));
             entry->conn = NULL;
         }
-        ereport(LOG,(errmsg("In pgfdw_xact_callback 11")));
+        ereport(LOG,(errmsg("In pgfdw_xact_callback 14")));
     }
 
     /*
