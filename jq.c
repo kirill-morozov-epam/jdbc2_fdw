@@ -600,7 +600,9 @@ JQfinish(Jconn *conn)
 	ereport(DEBUG3, (errmsg("In JQfinish for conn=%p", conn)));
     ereport(LOG,(errmsg("In JQfinish for conn=%p", conn)));
 	pfree(conn);
+    ereport(LOG,(errmsg("In JQfinish 0")));
 	conn = NULL;
+    ereport(LOG,(errmsg("In JQfinish 1")));
     return;
 }
 
