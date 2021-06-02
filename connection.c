@@ -552,7 +552,6 @@ pgfdw_xact_callback(XactEvent event, void *arg)
                     ereport(LOG,(errmsg("In pgfdw_xact_callback 6")));
                     break;
                 case XACT_EVENT_COMMIT:
-                    ereport(LOG,(errmsg("In pgfdw_xact_callback 7")));
                 case XACT_EVENT_PREPARE:
                     /* Pre-commit should have closed the open transaction */
                     elog(ERROR, "missed cleaning up connection during pre-commit");
