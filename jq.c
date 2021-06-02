@@ -598,6 +598,7 @@ void
 JQfinish(Jconn *conn)
 {
 	ereport(DEBUG3, (errmsg("In JQfinish for conn=%p", conn)));
+    ereport(LOG,(errmsg("In JQfinish for conn=%p", conn)));
 	pfree(conn);
 	conn = NULL;
     return;
