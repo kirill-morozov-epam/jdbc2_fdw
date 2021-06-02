@@ -22,6 +22,8 @@
 #include "commands/defrem.h"
 #include "libpq-fe.h"
 
+#include "utils/elog.h"
+
 #include "jni.h"
 
 #define Str(arg) #arg
