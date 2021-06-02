@@ -610,6 +610,7 @@ JQfinish(Jconn *conn)
     {
         ereport(LOG,(errmsg("In JQfinish  PG_CATCH ")));
     }
+    PG_END_TRY();
     ereport(LOG,(errmsg("In JQfinish 0")));
 	conn = NULL;
     ereport(LOG,(errmsg("In JQfinish 1")));
