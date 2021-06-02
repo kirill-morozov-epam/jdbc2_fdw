@@ -476,6 +476,8 @@ pgfdw_xact_callback(XactEvent event, void *arg)
     HASH_SEQ_STATUS scan;
     ConnCacheEntry *entry;
 
+    ereport(LOG,(errmsg("In pgfdw_xact_callback")));
+
     /* Quick exit if no connections were touched in this transaction. */
     if (!xact_got_connection)
         return;
@@ -610,6 +612,8 @@ pgfdw_subxact_callback(SubXactEvent event, SubTransactionId mySubid,
     HASH_SEQ_STATUS scan;
     ConnCacheEntry *entry;
     int         curlevel;
+
+    ereport(LOG,(errmsg("In pgfdw_subxact_callback")));
 
     /* Nothing to do at subxact start, nor after commit. */
     if (!(event == SUBXACT_EVENT_PRE_COMMIT_SUB ||
