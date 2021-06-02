@@ -476,17 +476,19 @@ pgfdw_xact_callback(XactEvent event, void *arg)
     HASH_SEQ_STATUS scan;
     ConnCacheEntry *entry;
 
-    ereport(LOG,(errmsg("In pgfdw_xact_callback")));
+    ereport(LOG,(errmsg("In pgfdw_xact_callback 0")));
 
     /* Quick exit if no connections were touched in this transaction. */
     if (!xact_got_connection)
         return;
 
+    ereport(LOG,(errmsg("In pgfdw_xact_callback 1")));
     /*
      * Scan all connection cache entries to find open remote transactions, and
      * close them.
      */
     hash_seq_init(&scan, ConnectionHash);
+    ereport(LOG,(errmsg("In pgfdw_xact_callback 2")));
     while ((entry = (ConnCacheEntry *) hash_seq_search(&scan)))
     {
         Jresult   *res;
@@ -500,12 +502,14 @@ pgfdw_xact_callback(XactEvent event, void *arg)
         {
             elog(DEBUG3, "closing remote transaction on connection %p",
                  entry->conn);
+            ereport(LOG,(errmsg("In pgfdw_xact_callback 3")));
 
             switch (event)
             {
                 case XACT_EVENT_PRE_COMMIT:
                     /* Commit all remote transactions during pre-commit */
                     do_sql_command(entry->conn, "COMMIT TRANSACTION");
+                    ereport(LOG,(errmsg("In pgfdw_xact_callback 4")));
 
                     /*
                      * If there were any errors in subtransactions, and we
@@ -527,6 +531,7 @@ pgfdw_xact_callback(XactEvent event, void *arg)
                         res = JQexec(entry->conn, "DEALLOCATE ALL");
                         JQclear(res);
                     }
+                    ereport(LOG,(errmsg("In pgfdw_xact_callback 5")));
                     entry->have_prep_stmt = false;
                     entry->have_error = false;
                     break;
@@ -544,13 +549,17 @@ pgfdw_xact_callback(XactEvent event, void *arg)
                     ereport(ERROR,
                             (errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
                              errmsg("cannot prepare a transaction that modified remote tables")));
+                    ereport(LOG,(errmsg("In pgfdw_xact_callback 6")));
                     break;
                 case XACT_EVENT_COMMIT:
+                    ereport(LOG,(errmsg("In pgfdw_xact_callback 7")));
                 case XACT_EVENT_PREPARE:
                     /* Pre-commit should have closed the open transaction */
                     elog(ERROR, "missed cleaning up connection during pre-commit");
+                    ereport(LOG,(errmsg("In pgfdw_xact_callback 8")));
                     break;
                 case XACT_EVENT_ABORT:
+                    ereport(LOG,(errmsg("In pgfdw_xact_callback 9")));
                     /* Assume we might have lost track of prepared statements */
                     entry->have_error = true;
                     /* If we're aborting, abort all remote transactions too */
@@ -577,6 +586,7 @@ pgfdw_xact_callback(XactEvent event, void *arg)
 
         /* Reset state to show we're out of a transaction */
         entry->xact_depth = 0;
+        ereport(LOG,(errmsg("In pgfdw_xact_callback 10")));
 
         /*
          * If the connection isn't in a good idle state, discard it to
@@ -589,6 +599,7 @@ pgfdw_xact_callback(XactEvent event, void *arg)
             JQfinish(entry->conn);
             entry->conn = NULL;
         }
+        ereport(LOG,(errmsg("In pgfdw_xact_callback 11")));
     }
 
     /*
