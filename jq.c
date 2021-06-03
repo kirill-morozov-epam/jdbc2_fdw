@@ -24,6 +24,11 @@
 
 #include "jni.h"
 
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #define Str(arg) #arg
 #define StrValue(arg) Str(arg)
 #define STR_PKGLIBDIR StrValue(PKG_LIB_DIR)
@@ -594,21 +599,27 @@ JQconnectionUsedPassword(const Jconn *conn)
     return 0;
 }
 
+void segfault_sigaction(int signal, siginfo_t *si, void *arg)
+{
+    ereport(LOG,(errmsg("Caught segfault at address %p\n", si->si_addr);
+//        exit(0);
+}
+
 void
 JQfinish(Jconn *conn)
 {
 	ereport(DEBUG3, (errmsg("In JQfinish for conn=%p", conn)));
     ereport(LOG,(errmsg("In JQfinish for conn=%p", conn)));
-    PG_TRY();
-    {
-        ereport(LOG,(errmsg("In JQfinish  PG_TRY ")));
-        pfree(conn);
-    }
-    PG_CATCH();
-    {
-        ereport(LOG,(errmsg("In JQfinish  PG_CATCH ")));
-    }
-    PG_END_TRY();
+
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(struct sigaction));
+    sigemptyset(&sa.sa_mask);
+    sa.sa_sigaction = segfault_sigaction;
+    sa.sa_flags   = SA_SIGINFO;
+    sigaction(SIGSEGV, &sa, NULL);
+
+    ereport(LOG,(errmsg("In JQfinish  pfree ")));
+    pfree(conn);
     ereport(LOG,(errmsg("In JQfinish 0")));
 	conn = NULL;
     ereport(LOG,(errmsg("In JQfinish 1")));
