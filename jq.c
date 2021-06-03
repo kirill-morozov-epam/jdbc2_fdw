@@ -602,7 +602,7 @@ JQconnectionUsedPassword(const Jconn *conn)
 void segfault_sigaction(int signal, siginfo_t *si, void *arg)
 {
     ereport(LOG,(errmsg("Caught segfault at address %p\n", si->si_addr)));
-    exit(0);
+//    exit(0);
 }
 
 void
