@@ -950,11 +950,11 @@ postgresEndForeignScan(ForeignScanState *node)
     int i;
     PgFdwScanState *fsstate = (PgFdwScanState *) node->fdw_state;
 
-    TupleDesc	tupdesc = RelationGetDescr(node->ss.ss_currentRelation);
-    for (i = 1; i <= tupdesc->natts; i++) {
-        Form_pg_attribute attr1 = tupdesc->attrs[i - 1];
-        attr1->attisdropped = 0;
-    }
+//    TupleDesc	tupdesc = RelationGetDescr(node->ss.ss_currentRelation);
+//    for (i = 1; i <= tupdesc->natts; i++) {
+//        Form_pg_attribute attr1 = tupdesc->attrs[i - 1];
+//        attr1->attisdropped = 0;
+//    }
 
     /* if fsstate is NULL, we are in EXPLAIN; nothing to do */
     if (fsstate == NULL)
