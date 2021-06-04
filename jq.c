@@ -512,7 +512,7 @@ JQiterate(Jconn *conn, ForeignScanState *node){
     rowArray = (*Jenv)->CallObjectMethod(Jenv, utilsObject, idResultSet);
     if(rowArray != NULL){
         for(i=0; i < numberOfColumnsMeta; i++){
-            if(!attinmeta->tupdesc->attrs[k]->attisdropped) {
+            if(!attinmeta->tupdesc->attrs[i]->attisdropped) {
                 values[i] = ConvertStringToCString((jobject) (*Jenv)->GetObjectArrayElement(Jenv, rowArray, n));
                 n++;
                 ereport(LOG, (errmsg("In JQiterate 501 %d: %s", i, values[i])));
