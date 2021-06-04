@@ -752,8 +752,8 @@ deparseSelectSql(StringInfo buf,
         /*
          * Construct SELECT list
          */
-        appendStringInfoString(buf, "SELECT *");
-        deparseTargetList(&fakeSql, root, baserel->relid, rel, attrs_used,
+        appendStringInfoString(buf, "SELECT ");
+        deparseTargetList(buf, root, baserel->relid, rel, attrs_used,
                           retrieved_attrs);
 
         /*
