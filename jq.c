@@ -411,6 +411,7 @@ JQiterate(Jconn *conn, ForeignScanState *node){
 	char **values;
 	int numberOfColumns;
 	int i;
+    int k;
 	HeapTuple tuple;
 	jstring tempString;
     AttInMetadata *attinmeta;
