@@ -811,11 +811,14 @@ deparseTargetList(StringInfo buf,
 	{
 		Form_pg_attribute attr = tupdesc->attrs[i - 1];
 
-        ereport(LOG,(errmsg("In deparseTargetList : %s", attr->attname)));
+        ereport(LOG,(errmsg("In deparseTargetList : %d", i)));
 
 		/* Ignore dropped attributes. */
-		if (attr->attisdropped)
-			continue;
+		if (attr->attisdropped){
+            ereport(LOG,(errmsg("In deparseTargetList dropped: %d", i)));
+            continue;
+		}
+
 
 		if (have_wholerow ||
 			bms_is_member(i - FirstLowInvalidHeapAttributeNumber,
