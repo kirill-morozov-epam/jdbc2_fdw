@@ -686,11 +686,11 @@ JQconnectionUsedPassword(const Jconn *conn)
     return 0;
 }
 
-void segfault_sigaction(int signal, siginfo_t *si, void *arg)
-{
-    ereport(LOG,(errmsg("Caught segfault at address %p\n", si->si_addr)));
-    exit(0);
-}
+//void segfault_sigaction(int signal, siginfo_t *si, void *arg)
+//{
+//    ereport(LOG,(errmsg("Caught segfault at address %p\n", si->si_addr)));
+//    exit(0);
+//}
 
 void
 JQfinish(Jconn *conn)
@@ -698,12 +698,12 @@ JQfinish(Jconn *conn)
 	ereport(DEBUG3, (errmsg("In JQfinish for conn=%p", conn)));
     ereport(LOG,(errmsg("In JQfinish for conn=%p", conn)));
 
-    struct sigaction sa;
-    memset(&sa, 0, sizeof(struct sigaction));
-    sigemptyset(&sa.sa_mask);
-    sa.sa_sigaction = segfault_sigaction;
-    sa.sa_flags   = SA_SIGINFO;
-    sigaction(SIGSEGV, &sa, NULL);
+//    struct sigaction sa;
+//    memset(&sa, 0, sizeof(struct sigaction));
+//    sigemptyset(&sa.sa_mask);
+//    sa.sa_sigaction = segfault_sigaction;
+//    sa.sa_flags   = SA_SIGINFO;
+//    sigaction(SIGSEGV, &sa, NULL);
 
     ereport(LOG,(errmsg("In JQfinish  pfree ")));
     pfree(conn);
