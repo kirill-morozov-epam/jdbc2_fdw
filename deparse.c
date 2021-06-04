@@ -828,9 +828,13 @@ deparseTargetList(StringInfo buf,
 				appendStringInfoString(buf, ", ");
 			first = false;
 
+			ereport(LOG,(errmsg("In deparseTargetList before deparseColumnRef: %d", i)));
 			deparseColumnRef(buf, rtindex, i, root);
 
 			*retrieved_attrs = lappend_int(*retrieved_attrs, i);
+		} else {
+            ereport(LOG,(errmsg("In deparseTargetList set fropped for: %d", i)));
+            attr->attisdropped = 1;
 		}
 	}
 
