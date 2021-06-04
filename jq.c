@@ -397,68 +397,145 @@ JQexec(Jconn *conn, const char *query)
     return res;
 }
 
+///*
+// * JQiterate:
+// * 		Read the next row from the remote server
+// */
+//TupleTableSlot *
+//JQiterate(Jconn *conn, ForeignScanState *node){
+//	jobject utilsObject;
+//	TupleTableSlot *slot = node->ss.ss_ScanTupleSlot;
+//	jclass JDBCUtilsClass;
+//	jmethodID idResultSet;
+//	jobjectArray rowArray;
+//	char **values;
+//	int numberOfColumns;
+//	int i;
+//    int k;
+//	HeapTuple tuple;
+//	jstring tempString;
+//    AttInMetadata *attinmeta;
+//
+//	numberOfColumns = conn->festate->NumberOfColumns;
+//	utilsObject = conn->utilsObject;
+//	if(utilsObject == NULL){
+//		ereport(ERROR, (errmsg("Cannot get the utilsObject from the connection")));
+//	}
+//	// Cleanup
+//	ExecClearTuple(slot);
+//	SIGINTInterruptCheckProcess();
+//	if((*Jenv)->PushLocalFrame(Jenv, (numberOfColumns + 10)) < 0){
+//		ereport(ERROR, (errmsg("Error pushing local java frame")));
+//	}
+//    JDBCUtilsClass = (*Jenv)->FindClass(Jenv, "JDBCUtils");
+//	if(JDBCUtilsClass == NULL){
+//        ereport(ERROR, (errmsg("JDBCUtils class could not be created")));
+//    }
+//    idResultSet = (*Jenv)->GetMethodID(Jenv, JDBCUtilsClass, "returnResultSet", "()[Ljava/lang/String;");
+//    if(idResultSet == NULL){
+//        ereport(ERROR, (errmsg("Failed to find the JDBCUtils.returnResultSet method!")));
+//    }
+//	// Allocate pointers to the row data
+//    values=(char **)palloc(numberOfColumns * sizeof(char *));
+//    rowArray = (*Jenv)->CallObjectMethod(Jenv, utilsObject, idResultSet);
+//    if(rowArray != NULL){
+//    	for(i=0; i < numberOfColumns; i++){
+//    		values[i] = ConvertStringToCString((jobject)(*Jenv)->GetObjectArrayElement(Jenv, rowArray, i));
+//            ereport(LOG, (errmsg("In JQiterate 501 %d: %s", i, values[i])));
+//    	}
+//        attinmeta = TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att);
+////        ereport(LOG,(errmsg("In JQiterate 511: %d", attinmeta->tupdesc->natts)));
+//        for(k=0; k < attinmeta->tupdesc->natts; k++){
+//            ereport(LOG,(errmsg("In attinmeta : %d attisdropped  %d", k, attinmeta->tupdesc->attrs[k]->attisdropped)));
+//        }
+//        tuple = BuildTupleFromCStrings(attinmeta, values);
+////    	tuple = BuildTupleFromCStrings(TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att), values);
+//    	ExecStoreHeapTuple(tuple, slot, InvalidBuffer, false);
+//    	++(conn->festate->NumberOfRows);
+//    	// Take out the garbage
+//    	for(i=0; i < numberOfColumns; i++){
+//    		tempString = (jstring)(*Jenv)->GetObjectArrayElement(Jenv, rowArray,i);
+//    		(*Jenv)->ReleaseStringUTFChars(Jenv, tempString, values[i]);
+//    		(*Jenv)->DeleteLocalRef(Jenv, tempString);
+//    	}
+//    	(*Jenv)->DeleteLocalRef(Jenv, rowArray);
+//    }
+//    (*Jenv)->PopLocalFrame(Jenv, NULL);
+//    return(slot);
+//}
+
 /*
  * JQiterate:
  * 		Read the next row from the remote server
  */
 TupleTableSlot *
 JQiterate(Jconn *conn, ForeignScanState *node){
-	jobject utilsObject;
-	TupleTableSlot *slot = node->ss.ss_ScanTupleSlot;
-	jclass JDBCUtilsClass;
-	jmethodID idResultSet;
-	jobjectArray rowArray;
-	char **values;
-	int numberOfColumns;
-	int i;
+    jobject utilsObject;
+    TupleTableSlot *slot = node->ss.ss_ScanTupleSlot;
+    jclass JDBCUtilsClass;
+    jmethodID idResultSet;
+    jobjectArray rowArray;
+    char **values;
+    int numberOfColumns;
+    int numberOfColumnsMeta;
+    int i;
     int k;
-	HeapTuple tuple;
-	jstring tempString;
+    int n;
+    HeapTuple tuple;
+    jstring tempString;
     AttInMetadata *attinmeta;
 
-	numberOfColumns = conn->festate->NumberOfColumns;
-	utilsObject = conn->utilsObject;
-	if(utilsObject == NULL){
-		ereport(ERROR, (errmsg("Cannot get the utilsObject from the connection")));
-	}
-	// Cleanup
-	ExecClearTuple(slot);
-	SIGINTInterruptCheckProcess();
-	if((*Jenv)->PushLocalFrame(Jenv, (numberOfColumns + 10)) < 0){
-		ereport(ERROR, (errmsg("Error pushing local java frame")));
-	}
+    numberOfColumns = conn->festate->NumberOfColumns;
+    utilsObject = conn->utilsObject;
+    if(utilsObject == NULL){
+        ereport(ERROR, (errmsg("Cannot get the utilsObject from the connection")));
+    }
+    // Cleanup
+    ExecClearTuple(slot);
+    SIGINTInterruptCheckProcess();
+    if((*Jenv)->PushLocalFrame(Jenv, (numberOfColumns + 10)) < 0){
+        ereport(ERROR, (errmsg("Error pushing local java frame")));
+    }
     JDBCUtilsClass = (*Jenv)->FindClass(Jenv, "JDBCUtils");
-	if(JDBCUtilsClass == NULL){
+    if(JDBCUtilsClass == NULL){
         ereport(ERROR, (errmsg("JDBCUtils class could not be created")));
     }
     idResultSet = (*Jenv)->GetMethodID(Jenv, JDBCUtilsClass, "returnResultSet", "()[Ljava/lang/String;");
     if(idResultSet == NULL){
         ereport(ERROR, (errmsg("Failed to find the JDBCUtils.returnResultSet method!")));
     }
-	// Allocate pointers to the row data
-    values=(char **)palloc(numberOfColumns * sizeof(char *));
+    // Allocate pointers to the row data
+    numberOfColumnsMeta = attinmeta->tupdesc->natts;
+    n = 0;
+    values=(char **)palloc(numberOfColumnsMeta * sizeof(char *));
     rowArray = (*Jenv)->CallObjectMethod(Jenv, utilsObject, idResultSet);
     if(rowArray != NULL){
-    	for(i=0; i < numberOfColumns; i++){
-    		values[i] = ConvertStringToCString((jobject)(*Jenv)->GetObjectArrayElement(Jenv, rowArray, i));
-            ereport(LOG, (errmsg("In JQiterate 501 %d: %s", i, values[i])));
-    	}
+        for(i=0; i < numberOfColumnsMeta; i++){
+            if(!attinmeta->tupdesc->attrs[k]->attisdropped) {
+                values[i] = ConvertStringToCString((jobject) (*Jenv)->GetObjectArrayElement(Jenv, rowArray, n));
+                n++;
+                ereport(LOG, (errmsg("In JQiterate 501 %d: %s", i, values[i])));
+            }else{
+                values[i] = NULL;
+                ereport(LOG, (errmsg("In JQiterate 501 %d: %s", i, "NULL")));
+            }
+        }
         attinmeta = TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att);
 //        ereport(LOG,(errmsg("In JQiterate 511: %d", attinmeta->tupdesc->natts)));
-        for(k=0; k < attinmeta->tupdesc->natts; k++){
-            ereport(LOG,(errmsg("In attinmeta : %d attisdropped  %d", k, attinmeta->tupdesc->attrs[k]->attisdropped)));
-        }
+//        for(k=0; k < attinmeta->tupdesc->natts; k++){
+//            ereport(LOG,(errmsg("In attinmeta : %d attisdropped  %d", k, attinmeta->tupdesc->attrs[k]->attisdropped)));
+//        }
         tuple = BuildTupleFromCStrings(attinmeta, values);
 //    	tuple = BuildTupleFromCStrings(TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att), values);
-    	ExecStoreHeapTuple(tuple, slot, InvalidBuffer, false);
-    	++(conn->festate->NumberOfRows);
-    	// Take out the garbage
-    	for(i=0; i < numberOfColumns; i++){
-    		tempString = (jstring)(*Jenv)->GetObjectArrayElement(Jenv, rowArray,i);
-    		(*Jenv)->ReleaseStringUTFChars(Jenv, tempString, values[i]);
-    		(*Jenv)->DeleteLocalRef(Jenv, tempString);
-    	}
-    	(*Jenv)->DeleteLocalRef(Jenv, rowArray);
+        ExecStoreHeapTuple(tuple, slot, InvalidBuffer, false);
+        ++(conn->festate->NumberOfRows);
+        // Take out the garbage
+        for(i=0; i < numberOfColumns; i++){
+            tempString = (jstring)(*Jenv)->GetObjectArrayElement(Jenv, rowArray,i);
+            (*Jenv)->ReleaseStringUTFChars(Jenv, tempString, values[i]);
+            (*Jenv)->DeleteLocalRef(Jenv, tempString);
+        }
+        (*Jenv)->DeleteLocalRef(Jenv, rowArray);
     }
     (*Jenv)->PopLocalFrame(Jenv, NULL);
     return(slot);
