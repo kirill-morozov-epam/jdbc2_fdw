@@ -802,10 +802,6 @@ deparseTargetList(StringInfo buf,
 
 	*retrieved_attrs = NIL;
 
-    for (i = 1; i <= tupdesc->natts; i++) {
-        Form_pg_attribute attr1 = tupdesc->attrs[i - 1];
-        attr1->attisdropped = 0;
-    }
 
         /* If there's a whole-row reference, we'll need all the columns. */
 	have_wholerow = bms_is_member(0 - FirstLowInvalidHeapAttributeNumber,
