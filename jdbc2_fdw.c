@@ -947,6 +947,7 @@ postgresEndForeignScan(ForeignScanState *node)
 {
     ereport(DEBUG3, (errmsg("In postgresEndForeignScan 0")));
     ereport(LOG,(errmsg("In postgresEndForeignScan")));
+    int i;
     PgFdwScanState *fsstate = (PgFdwScanState *) node->fdw_state;
 
     TupleDesc	tupdesc = RelationGetDescr(node->ss.ss_currentRelation);
