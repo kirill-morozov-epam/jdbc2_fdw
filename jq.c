@@ -508,24 +508,23 @@ JQiterate(Jconn *conn, ForeignScanState *node){
     ereport(LOG, (errmsg("In JQiterate attinmeta")));
     ereport(LOG, (errmsg("In JQiterate numberOfColumns %d", numberOfColumns)));
     n = 0;
-    values=(char **)palloc(numberOfColumns * sizeof(char *));
+    attinmeta = TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att);
+    numberOfColumnsMeta = attinmeta->tupdesc->natts;
+    values=(char **)palloc(numberOfColumnsMeta * sizeof(char *));
     ereport(LOG, (errmsg("In JQiterate palloc")));
     rowArray = (*Jenv)->CallObjectMethod(Jenv, utilsObject, idResultSet);
     ereport(LOG, (errmsg("In JQiterate rowArray")));
     if(rowArray != NULL){
-        attinmeta = TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att);
-        numberOfColumnsMeta = attinmeta->tupdesc->natts;
         ereport(LOG, (errmsg("In JQiterate numberOfColumnsMeta %d", numberOfColumnsMeta)));
         for(i=0; i < numberOfColumnsMeta; i++){
-//            if(!attinmeta->tupdesc->attrs[i]->attisdropped) {
+            if(!attinmeta->tupdesc->attrs[i]->attisdropped) {
                 values[i] = ConvertStringToCString((jobject) (*Jenv)->GetObjectArrayElement(Jenv, rowArray, n));
                 ereport(LOG, (errmsg("In JQiterate 501 i-%d n-%d : %s", i, n, values[i])));
                 n++;
-
-//            }else{
-//                values[i] = NULL;
-//                ereport(LOG, (errmsg("In JQiterate 501 %d: %s", i, "NULL")));
-//            }
+            }else{
+                values[i] = NULL;
+                ereport(LOG, (errmsg("In JQiterate 501 %d: %s", i, "NULL")));
+            }
         }
 //        ereport(LOG,(errmsg("In JQiterate 511: %d", attinmeta->tupdesc->natts)));
 //        for(k=0; k < attinmeta->tupdesc->natts; k++){

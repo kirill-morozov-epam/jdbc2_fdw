@@ -752,11 +752,9 @@ deparseSelectSql(StringInfo buf,
         /*
          * Construct SELECT list
          */
-        appendStringInfoString(buf, "SELECT * ");
+        appendStringInfoString(buf, "SELECT ");
 
-//        deparseTargetList(buf, root, baserel->relid, rel, attrs_used,
-//                          retrieved_attrs);
-        deparseTargetList(&fakeSql, root, baserel->relid, rel, attrs_used,
+        deparseTargetList(buf, root, baserel->relid, rel, attrs_used,
                           retrieved_attrs);
 
 
@@ -838,10 +836,10 @@ deparseTargetList(StringInfo buf,
 
 			*retrieved_attrs = lappend_int(*retrieved_attrs, i);
 		}
-//		else {
-//            ereport(LOG,(errmsg("In deparseTargetList set fropped for: %d", i)));
-////            attr->attisdropped = 1;
-//		}
+		else {
+            ereport(LOG,(errmsg("In deparseTargetList set fropped for: %d", i)));
+            attr->attisdropped = 1;
+		}
 	}
 
 	/*
