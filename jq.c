@@ -446,7 +446,7 @@ JQiterate(Jconn *conn, ForeignScanState *node){
         attinmeta = TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att);
 //        ereport(LOG,(errmsg("In JQiterate 511: %d", attinmeta->tupdesc->natts)));
         for(k=0; k < attinmeta->tupdesc->natts; k++){
-            ereport(LOG,(errmsg("In attinmeta : %d attisdropped  %d", k, attinmeta->attrs[k]->attisdropped)));
+            ereport(LOG,(errmsg("In attinmeta : %d attisdropped  %d", k, attinmeta->tupdesc->attrs[k]->attisdropped)));
         }
         tuple = BuildTupleFromCStrings(attinmeta, values);
 //    	tuple = BuildTupleFromCStrings(TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att), values);
