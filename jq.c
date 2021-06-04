@@ -506,9 +506,6 @@ JQiterate(Jconn *conn, ForeignScanState *node){
     }
     // Allocate pointers to the row data
     ereport(LOG, (errmsg("In JQiterate attinmeta")));
-    attinmeta = TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att);
-    numberOfColumnsMeta = attinmeta->tupdesc->natts;
-    ereport(LOG, (errmsg("In JQiterate numberOfColumnsMeta %d", numberOfColumnsMeta)));
     ereport(LOG, (errmsg("In JQiterate numberOfColumns %d", numberOfColumns)));
     n = 0;
     values=(char **)palloc(numberOfColumns * sizeof(char *));
@@ -516,6 +513,9 @@ JQiterate(Jconn *conn, ForeignScanState *node){
     rowArray = (*Jenv)->CallObjectMethod(Jenv, utilsObject, idResultSet);
     ereport(LOG, (errmsg("In JQiterate rowArray")));
     if(rowArray != NULL){
+        attinmeta = TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att);
+        numberOfColumnsMeta = attinmeta->tupdesc->natts;
+        ereport(LOG, (errmsg("In JQiterate numberOfColumnsMeta %d", numberOfColumnsMeta)));
         for(i=0; i < numberOfColumnsMeta; i++){
 //            if(!attinmeta->tupdesc->attrs[i]->attisdropped) {
                 values[i] = ConvertStringToCString((jobject) (*Jenv)->GetObjectArrayElement(Jenv, rowArray, n));
