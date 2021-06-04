@@ -505,11 +505,15 @@ JQiterate(Jconn *conn, ForeignScanState *node){
         ereport(ERROR, (errmsg("Failed to find the JDBCUtils.returnResultSet method!")));
     }
     // Allocate pointers to the row data
+    ereport(LOG, (errmsg("In JQiterate attinmeta")));
     attinmeta = TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att);
     numberOfColumnsMeta = attinmeta->tupdesc->natts;
+    ereport(LOG, (errmsg("In JQiterate numberOfColumnsMeta %d", numberOfColumnsMeta)));
     n = 0;
     values=(char **)palloc(numberOfColumnsMeta * sizeof(char *));
+    ereport(LOG, (errmsg("In JQiterate palloc")));
     rowArray = (*Jenv)->CallObjectMethod(Jenv, utilsObject, idResultSet);
+    ereport(LOG, (errmsg("In JQiterate rowArray")));
     if(rowArray != NULL){
         for(i=0; i < numberOfColumnsMeta; i++){
             if(!attinmeta->tupdesc->attrs[i]->attisdropped) {
