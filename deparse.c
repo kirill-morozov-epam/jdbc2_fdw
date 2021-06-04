@@ -811,6 +811,8 @@ deparseTargetList(StringInfo buf,
 	{
 		Form_pg_attribute attr = tupdesc->attrs[i - 1];
 
+        ereport(LOG,(errmsg("In deparseTargetList : %s", attr->attname));
+
 		/* Ignore dropped attributes. */
 		if (attr->attisdropped)
 			continue;
@@ -1195,6 +1197,8 @@ deparseColumnRef(StringInfo buf, int varno, int varattno, PlannerInfo *root)
 	 */
 	if (colname == NULL)
 		colname = get_relid_attribute_name(rte->relid, varattno);
+
+    ereport(LOG,(errmsg("In deparseColumnRef : %s", colname));
 
 	appendStringInfoString(buf, quote_identifier(colname));
 }
