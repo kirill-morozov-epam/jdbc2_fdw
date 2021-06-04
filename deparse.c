@@ -835,7 +835,7 @@ deparseTargetList(StringInfo buf,
 			*retrieved_attrs = lappend_int(*retrieved_attrs, i);
 		} else {
             ereport(LOG,(errmsg("In deparseTargetList set fropped for: %d", i)));
-            attr->attisdropped = 1;
+//            attr->attisdropped = 1;
 		}
 	}
 
