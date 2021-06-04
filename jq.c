@@ -505,6 +505,7 @@ JQiterate(Jconn *conn, ForeignScanState *node){
         ereport(ERROR, (errmsg("Failed to find the JDBCUtils.returnResultSet method!")));
     }
     // Allocate pointers to the row data
+    attinmeta = TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att);
     numberOfColumnsMeta = attinmeta->tupdesc->natts;
     n = 0;
     values=(char **)palloc(numberOfColumnsMeta * sizeof(char *));
@@ -520,7 +521,6 @@ JQiterate(Jconn *conn, ForeignScanState *node){
                 ereport(LOG, (errmsg("In JQiterate 501 %d: %s", i, "NULL")));
             }
         }
-        attinmeta = TupleDescGetAttInMetadata(node->ss.ss_currentRelation->rd_att);
 //        ereport(LOG,(errmsg("In JQiterate 511: %d", attinmeta->tupdesc->natts)));
 //        for(k=0; k < attinmeta->tupdesc->natts; k++){
 //            ereport(LOG,(errmsg("In attinmeta : %d attisdropped  %d", k, attinmeta->tupdesc->attrs[k]->attisdropped)));
