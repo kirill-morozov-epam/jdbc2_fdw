@@ -704,8 +704,13 @@ JQfinish(Jconn *conn)
 //    sa.sa_flags   = SA_SIGINFO;
 //    sigaction(SIGSEGV, &sa, NULL);
 
-    ereport(LOG,(errmsg("In JQfinish  pfree disabled")));
-//    pfree(conn);
+    ereport(LOG,(errmsg("In JQfinish  pfree festate")));
+    pfree(conn->festate);
+    ereport(LOG,(errmsg("In JQfinish  pfree utilsObject")));
+    pfree(conn->utilsObject);
+    ereport(LOG,(errmsg("In JQfinish  pfree status")));
+    pfree(conn->status);
+
     ereport(LOG,(errmsg("In JQfinish 0")));
 	conn = NULL;
     ereport(LOG,(errmsg("In JQfinish 1")));
