@@ -16,7 +16,7 @@
 
 typedef struct jdbcFdwExecutionState
 {
-//        char            *query;
+        char            *query;
         int             NumberOfRows;
         int             NumberOfColumns;
 } jdbcFdwExecutionState;
