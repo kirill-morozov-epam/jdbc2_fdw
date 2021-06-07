@@ -242,7 +242,7 @@ createJDBCConnection(const ForeignServer *server, const UserMapping *user)
     Jconn *conn = (Jconn *)palloc(sizeof(Jconn));
     conn->status = CONNECTION_BAD; // Be pessimistic
     conn->festate = (jdbcFdwExecutionState *) palloc(sizeof(jdbcFdwExecutionState));
-    conn->festate->query = NULL;
+//    conn->festate->query = NULL;
     conn->festate->NumberOfRows = 0;
     conn->festate->NumberOfColumns = 0;
     JDBCUtilsClass = (*Jenv)->FindClass(Jenv, "JDBCUtils");
@@ -704,13 +704,8 @@ JQfinish(Jconn *conn)
 //    sa.sa_flags   = SA_SIGINFO;
 //    sigaction(SIGSEGV, &sa, NULL);
 
-    ereport(LOG,(errmsg("In JQfinish  pfree festate")));
-    pfree(conn->festate);
-    ereport(LOG,(errmsg("In JQfinish  pfree utilsObject")));
-    pfree(*(conn->utilsObject));
-    ereport(LOG,(errmsg("In JQfinish  pfree status")));
-    pfree(*(conn->status));
-
+    ereport(LOG,(errmsg("In JQfinish  pfree ")));
+    pfree(conn);
     ereport(LOG,(errmsg("In JQfinish 0")));
 	conn = NULL;
     ereport(LOG,(errmsg("In JQfinish 1")));
