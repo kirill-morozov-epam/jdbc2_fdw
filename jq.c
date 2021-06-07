@@ -707,9 +707,9 @@ JQfinish(Jconn *conn)
     ereport(LOG,(errmsg("In JQfinish  pfree festate")));
     pfree(conn->festate);
     ereport(LOG,(errmsg("In JQfinish  pfree utilsObject")));
-    pfree(conn->utilsObject);
+    pfree(conn->*utilsObject);
     ereport(LOG,(errmsg("In JQfinish  pfree status")));
-    pfree(conn->status);
+    pfree(conn->*status);
 
     ereport(LOG,(errmsg("In JQfinish 0")));
 	conn = NULL;
