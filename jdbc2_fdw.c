@@ -1184,7 +1184,7 @@ postgresBeginForeignModify(ModifyTableState *mtstate,
                                      FdwModifyPrivateUpdateSql));
     fmstate->target_attrs = (List *) list_nth(fdw_private,
                                               FdwModifyPrivateTargetAttnums);
-    fmstate->has_returning = intVal(list_nth(fdw_private,
+    fmstate->has_returning = !!intVal(list_nth(fdw_private,
                                              FdwModifyPrivateHasReturning));
     fmstate->retrieved_attrs = (List *) list_nth(fdw_private,
                                              FdwModifyPrivateRetrievedAttrs);

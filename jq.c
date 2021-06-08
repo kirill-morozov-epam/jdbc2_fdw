@@ -637,7 +637,7 @@ JQconnectdbParams(const ForeignServer *server, const UserMapping *user,
     while(keywords[i]){
         const char *pkey = keywords[i];
         const char *pvalue = values[i];
-        if(pvalue == NULL && pvalue[0] == '\0'){
+        if(pvalue != NULL && pvalue[0] == '\0'){
         	break;
         }
         i++;
