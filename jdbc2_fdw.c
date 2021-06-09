@@ -2618,19 +2618,15 @@ char* get_query_prop(ForeignTable *table){
         if (strcmp(def->defname, "query") == 0)
             query = defGetString(def);
     }
-    ereport(LOG,(errmsg("In get_query_prop %s", query)));
     return query;
 }
 
 bool is_query_table(ForeignTable *table){
-    ereport(LOG,(errmsg("In is_query_table 0")));
     bool queryMode = true;
     const char *query = get_query_prop(table);
-    ereport(LOG,(errmsg("In is_query_table %s", query)));
 
     if (query == NULL) {
         queryMode = false;
     }
-    ereport(LOG,(errmsg("In is_query_table %d", queryMode)));
     return queryMode;
 }

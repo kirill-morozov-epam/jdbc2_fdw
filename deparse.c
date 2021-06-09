@@ -721,9 +721,6 @@ deparseSelectSql(StringInfo buf,
     RangeTblEntry *rte = planner_rt_fetch(baserel->relid, root);
     Relation	rel;
 
-    const char *query = NULL;
-    ListCell   *lc;
-    ForeignTable *table;
     StringInfoData fakeSql;
 
     /*
@@ -732,20 +729,15 @@ deparseSelectSql(StringInfo buf,
      */
     rel = heap_open(rte->relid, NoLock);
 
-    table = GetForeignTable(RelationGetRelid(rel));
-
     initStringInfo(&fakeSql);
 
     /*
      * Use value of FDW options if any, instead of the name of object itself.
      */
-    foreach(lc, table->options)
-    {
-        DefElem    *def = (DefElem *) lfirst(lc);
-        if (strcmp(def->defname, "query") == 0)
-            query = defGetString(def);
-    }
-    if (query == NULL) {
+
+    bool queryMode = is_query_table(GetForeignTable(RelationGetRelid(rel)));
+
+    if (!queryMode) {
 
         ereport(LOG,(errmsg("deparseSelectSql schema case")));
 
@@ -1267,23 +1259,7 @@ deparseRelation(StringInfo buf, Relation rel)
 static void
 deparseQuery(StringInfo buf, Relation rel)
 {
-    ForeignTable *table;
-    const char *query = NULL;
-    ListCell   *lc;
-
-    /* obtain additional catalog information. */
-    table = GetForeignTable(RelationGetRelid(rel));
-
-    /*
-     * Use value of FDW options if any, instead of the name of object itself.
-     */
-    foreach(lc, table->options)
-    {
-        DefElem    *def = (DefElem *) lfirst(lc);
-
-        if (strcmp(def->defname, "query") == 0)
-            query = defGetString(def);
-    }
+    const char *query = get_query_prop(GetForeignTable(RelationGetRelid(rel)));
     appendStringInfo(buf, "%s", query);
 }
 
