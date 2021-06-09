@@ -75,4 +75,7 @@ extern void deparseAnalyzeSizeSql(StringInfo buf, Relation rel);
 extern void deparseAnalyzeSql(StringInfo buf, Relation rel,
                   List **retrieved_attrs);
 
+extern char* get_query_prop(ForeignTable *table);
+extern bool is_query_table(ForeignTable *table);
+
 #endif   /* JDBC2_FDW_H */

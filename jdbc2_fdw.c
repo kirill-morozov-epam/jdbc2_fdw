@@ -872,24 +872,12 @@ jdbcBeginForeignScan(ForeignScanState *node, int eflags)
 static TupleTableSlot *
 jdbcIterateForeignScan(ForeignScanState *node)
 {
-    ForeignTable *table;
-    ListCell   *lc;
-    const char *query = NULL;
-    bool queryMode = true;
-
-    table = GetForeignTable(RelationGetRelid(node->ss.ss_currentRelation));
-    foreach(lc, table->options)
-    {
-        DefElem    *def = (DefElem *) lfirst(lc);
-        if (strcmp(def->defname, "query") == 0)
-            query = defGetString(def);
-    }
-    if (query == NULL) {
-        queryMode = false;
-    }
 
     PgFdwScanState *fsstate = (PgFdwScanState *) node->fdw_state;
     TupleTableSlot *slot;
+
+    ForeignTable *table = GetForeignTable(RelationGetRelid(node->ss.ss_currentRelation));
+    bool queryMode = is_query_table(table);
 
     slot = JQiterate(fsstate->conn, node, queryMode);
     return node->ss.ss_ScanTupleSlot;
@@ -2618,4 +2606,27 @@ conversion_error_callback(void *arg)
         errcontext("column \"%s\" of foreign table \"%s\"",
                    NameStr(tupdesc->attrs[errpos->cur_attno - 1]->attname),
                    RelationGetRelationName(errpos->rel));
+}
+
+char* get_query_prop(ForeignTable *table){
+    ListCell   *lc;
+    const char *query = NULL;
+
+    foreach(lc, table->options)
+    {
+        DefElem    *def = (DefElem *) lfirst(lc);
+        if (strcmp(def->defname, "query") == 0)
+            query = defGetString(def);
+    }
+    return *query;
+}
+
+bool is_query_table(ForeignTable *table){
+    bool queryMode = true;
+    const char *query = get_query_prop(table);
+
+    if (query == NULL) {
+        queryMode = false;
+    }
+    return queryMode;
 }
