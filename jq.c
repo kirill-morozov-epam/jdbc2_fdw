@@ -469,7 +469,7 @@ JQexec(Jconn *conn, const char *query)
  * 		Read the next row from the remote server
  */
 TupleTableSlot *
-JQiterate(Jconn *conn, ForeignScanState *node){
+JQiterate(Jconn *conn, ForeignScanState *node, bool queryMode){
     jobject utilsObject;
     TupleTableSlot *slot = node->ss.ss_ScanTupleSlot;
     jclass JDBCUtilsClass;
@@ -484,17 +484,7 @@ JQiterate(Jconn *conn, ForeignScanState *node){
     HeapTuple tuple;
     jstring tempString;
     AttInMetadata *attinmeta;
-    ForeignTable *table;
-    ListCell   *lc;
-    const char *query = NULL;
 
-    table = GetForeignTable(RelationGetRelid(node->ss.ss_currentRelation));
-    foreach(lc, table->options)
-    {
-        DefElem    *def = (DefElem *) lfirst(lc);
-        if (strcmp(def->defname, "query") == 0)
-            query = defGetString(def);
-    }
 
     numberOfColumns = conn->festate->NumberOfColumns;
     utilsObject = conn->utilsObject;
@@ -528,7 +518,7 @@ JQiterate(Jconn *conn, ForeignScanState *node){
     if(rowArray != NULL){
         ereport(LOG, (errmsg("In JQiterate numberOfColumnsMeta %d", numberOfColumnsMeta)));
         for(i=0; i < numberOfColumnsMeta; i++){
-            if (query == NULL) {
+            if (!queryMode) {
                 if(!attinmeta->tupdesc->attrs[i]->attisdropped) {
                     values[i] = ConvertStringToCString((jobject) (*Jenv)->GetObjectArrayElement(Jenv, rowArray, n));
                     ereport(LOG, (errmsg("In JQiterate 501 i-%d n-%d : %s", i, n, values[i])));

@@ -872,11 +872,26 @@ jdbcBeginForeignScan(ForeignScanState *node, int eflags)
 static TupleTableSlot *
 jdbcIterateForeignScan(ForeignScanState *node)
 {
+    ForeignTable *table;
+    ListCell   *lc;
+    const char *query = NULL;
+    bool queryMode = true;
+
+    table = GetForeignTable(RelationGetRelid(node->ss.ss_currentRelation));
+    foreach(lc, table->options)
+    {
+        DefElem    *def = (DefElem *) lfirst(lc);
+        if (strcmp(def->defname, "query") == 0)
+            query = defGetString(def);
+    }
+    if (query == NULL) {
+        queryMode = false;
+    }
 
     PgFdwScanState *fsstate = (PgFdwScanState *) node->fdw_state;
     TupleTableSlot *slot;
 
-    slot = JQiterate(fsstate->conn, node);
+    slot = JQiterate(fsstate->conn, node, queryMode);
     return node->ss.ss_ScanTupleSlot;
 }
 

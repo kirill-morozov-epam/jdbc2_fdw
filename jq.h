@@ -60,6 +60,6 @@ extern void JQfinish(Jconn *conn);
 extern int JQserverVersion(const Jconn *conn);
 extern char* JQresultErrorField(const Jresult *res, int fieldcode);
 extern PGTransactionStatusType JQtransactionStatus(const Jconn *conn);
-extern TupleTableSlot *JQiterate(Jconn *conn, ForeignScanState *node);
+extern TupleTableSlot *JQiterate(Jconn *conn, ForeignScanState *node, bool queryMode);
 
 #endif /* JQ_H */
