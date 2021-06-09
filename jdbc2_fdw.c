@@ -2623,8 +2623,10 @@ char* get_query_prop(ForeignTable *table){
 }
 
 bool is_query_table(ForeignTable *table){
+    ereport(LOG,(errmsg("In is_query_table 0")));
     bool queryMode = true;
     const char *query = get_query_prop(table);
+    ereport(LOG,(errmsg("In is_query_table %s", query)));
 
     if (query == NULL) {
         queryMode = false;
