@@ -710,7 +710,7 @@ JQfinish(Jconn *conn)
 //    sigaction(SIGSEGV, &sa, NULL);
 
     ereport(LOG,(errmsg("In JQfinish  pfree ")));
-//    pfree(conn);
+    pfree(conn);
     ereport(LOG,(errmsg("In JQfinish 0")));
 	conn = NULL;
     ereport(LOG,(errmsg("In JQfinish 1")));
