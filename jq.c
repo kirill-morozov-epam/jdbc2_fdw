@@ -484,6 +484,17 @@ JQiterate(Jconn *conn, ForeignScanState *node){
     HeapTuple tuple;
     jstring tempString;
     AttInMetadata *attinmeta;
+    ForeignTable *table;
+    ListCell   *lc;
+    const char *query = NULL;
+
+    table = GetForeignTable(RelationGetRelid(node->ss.ss_currentRelation));
+    foreach(lc, table->options)
+    {
+        DefElem    *def = (DefElem *) lfirst(lc);
+        if (strcmp(def->defname, "query") == 0)
+            query = defGetString(def);
+    }
 
     numberOfColumns = conn->festate->NumberOfColumns;
     utilsObject = conn->utilsObject;
@@ -517,13 +528,17 @@ JQiterate(Jconn *conn, ForeignScanState *node){
     if(rowArray != NULL){
         ereport(LOG, (errmsg("In JQiterate numberOfColumnsMeta %d", numberOfColumnsMeta)));
         for(i=0; i < numberOfColumnsMeta; i++){
-            if(!attinmeta->tupdesc->attrs[i]->attisdropped) {
-                values[i] = ConvertStringToCString((jobject) (*Jenv)->GetObjectArrayElement(Jenv, rowArray, n));
-                ereport(LOG, (errmsg("In JQiterate 501 i-%d n-%d : %s", i, n, values[i])));
-                n++;
-            }else{
-                values[i] = NULL;
-                ereport(LOG, (errmsg("In JQiterate 501 %d: %s", i, "NULL")));
+            if (query == NULL) {
+                if(!attinmeta->tupdesc->attrs[i]->attisdropped) {
+                    values[i] = ConvertStringToCString((jobject) (*Jenv)->GetObjectArrayElement(Jenv, rowArray, n));
+                    ereport(LOG, (errmsg("In JQiterate 501 i-%d n-%d : %s", i, n, values[i])));
+                    n++;
+                }else{
+                    values[i] = NULL;
+                    ereport(LOG, (errmsg("In JQiterate 501 %d: %s", i, "NULL")));
+                }
+            }else {
+                values[i] = ConvertStringToCString((jobject) (*Jenv)->GetObjectArrayElement(Jenv, rowArray, i));
             }
         }
 //        ereport(LOG,(errmsg("In JQiterate 511: %d", attinmeta->tupdesc->natts)));
