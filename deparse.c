@@ -770,6 +770,7 @@ deparseSelectSql(StringInfo buf,
 
     }
 
+    pfree(fakeSql.data);
     ereport(LOG,(errmsg("deparseSelectSql 9 ")));
     heap_close(rel, NoLock);
 
