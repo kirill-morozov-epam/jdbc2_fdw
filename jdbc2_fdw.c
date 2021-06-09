@@ -2619,7 +2619,7 @@ char* get_query_prop(ForeignTable *table){
             query = defGetString(def);
     }
     ereport(LOG,(errmsg("In get_query_prop %s", query)));
-    return *query;
+    return query;
 }
 
 bool is_query_table(ForeignTable *table){
