@@ -571,11 +571,11 @@ pgfdw_xact_callback(XactEvent event, void *arg)
                     {
                         JQclear(res);
                         /* As above, make sure to clear any prepared stmts */
-                        if (entry->have_prep_stmt && entry->have_error)
-                        {
+//                        if (entry->have_prep_stmt && entry->have_error)
+//                        {
                             res = JQexec(entry->conn, "DEALLOCATE ALL");
                             JQclear(res);
-                        }
+//                        }
                         entry->have_prep_stmt = false;
                         entry->have_error = false;
                     }

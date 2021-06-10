@@ -874,12 +874,13 @@ jdbcIterateForeignScan(ForeignScanState *node)
 {
 
     PgFdwScanState *fsstate = (PgFdwScanState *) node->fdw_state;
-    TupleTableSlot *slot;
+//    TupleTableSlot *slot;
 
     ForeignTable *table = GetForeignTable(RelationGetRelid(node->ss.ss_currentRelation));
     bool queryMode = is_query_table(table);
 
-    slot = JQiterate(fsstate->conn, node, queryMode);
+//    slot =
+    JQiterate(fsstate->conn, node, queryMode);
     return node->ss.ss_ScanTupleSlot;
 }
 
